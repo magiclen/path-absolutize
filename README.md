@@ -1,6 +1,9 @@
 Path Absolutize
 ====================
 
+[![Build Status](https://travis-ci.org/magiclen/path-absolutize.svg?branch=master)](https://travis-ci.org/magiclen/path-absolutize)
+
+
 This is a library for extending `Path` and `PathBuf` in order to get an absolute path and remove the containing dots.
 
 The difference between `absolutize` and `canonicalize` methods is that `absolutize` does not care about whether the file exists and what the file really is.

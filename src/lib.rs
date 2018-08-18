@@ -109,9 +109,13 @@ pub trait Absolutize {
     ///
     /// use path_absolutize::*;
     ///
-    /// let p = Path::new("path/to/123/456");
+    /// if cfg!(not(windows)) {
     ///
-    /// assert_eq!(Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
+    ///     let p = Path::new("path/to/123/456");
+    ///
+    ///     assert_eq!(Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
+    ///
+    /// }
     /// ```
     ///
     /// ```
