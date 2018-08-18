@@ -226,7 +226,7 @@ https://docs.rs/path-absolutize
 
 ## About Windows
 
-For people who develop Rust programs on Windows, this crate may not suitable because I don't have Windows to test it. However, you can always contribute your code if you like to make it windows supported.
+For people who develop Rust programs on Windows, this crate may not be suitable because I don't have Windows to test it. However, you can always contribute your code if you like to make it windows supported.
 
 ## License
 
