@@ -82,7 +82,7 @@ pub trait Absolutize {
     /// }
     /// ```
     ///
-    /// For those paths which do not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, they will act like having a single dot at the start when `absolutize` method is used.
+    /// A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will act like having a single dot at the start when `absolutize` method is used.
     ///
     /// ```
     /// extern crate path_absolutize;
@@ -196,7 +196,7 @@ pub trait Absolutize {
     /// assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
     /// ```
     ///
-    /// For those paths which do not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, they will be located in the virtual root after the `absolutize_virtually` method is used.
+    /// A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will be located in the virtual root after the `absolutize_virtually` method is used.
     ///
     /// ```
     /// extern crate path_absolutize;

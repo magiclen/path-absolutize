@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/path-absolutize"
 homepage = "https://magiclen.org/path-absolutize"
@@ -11,4 +11,4 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-path-dedot = "1.0.4"
+path-dedot = "1.0.5"

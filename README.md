@@ -79,7 +79,7 @@ match cwd_parent {
 }
 ```
 
-For those paths which do not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, they will act like having a single dot at the start when `absolutize` method is used.
+A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will act like having a single dot at the start when `absolutize` method is used.
     
 ```rust
 extern crate path_absolutize;
@@ -190,7 +190,7 @@ let p = Path::new("../path/to/123/456");
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 ```
     
-For those paths which do not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, they will be located in the virtual root after the `absolutize_virtually` method is used.
+A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will be located in the virtual root after the `absolutize_virtually` method is used.
     
 ```rust
 extern crate path_absolutize;
@@ -226,7 +226,7 @@ https://docs.rs/path-absolutize
 
 ## About Windows
 
-For people who develop Rust programs on Windows, this crate may not suitable for you because I don't have Windows to test it. However, you can always contribute your code if you like to make it windows supported.
+For people who develop Rust programs on Windows, this crate may not suitable because I don't have Windows to test it. However, you can always contribute your code if you like to make it windows supported.
 
 ## License
 
