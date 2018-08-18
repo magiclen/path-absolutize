@@ -3,7 +3,11 @@ extern crate path_dedot;
 use std::path::{Path, PathBuf};
 use std::io::{self, ErrorKind};
 
+#[cfg(not(windows))]
 use path_dedot::ParseDot;
+
+#[cfg(windows)]
+use path_dedot::*;
 
 /// Current working directory.
 pub use path_dedot::CWD;
@@ -367,6 +371,8 @@ impl Absolutize for PathBuf {
 mod tests {
     use std::path::Path;
     use std::io::ErrorKind;
+    #[cfg(windows)]
+    use path_dedot::*;
     use super::*;
 
     #[test]
