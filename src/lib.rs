@@ -3,11 +3,10 @@ extern crate path_dedot;
 use std::path::{Path, PathBuf};
 use std::io::{self, ErrorKind};
 
-#[cfg(not(windows))]
 use path_dedot::ParseDot;
 
 #[cfg(windows)]
-use path_dedot::*;
+use path_dedot::ParsePrefix;
 
 /// Current working directory.
 pub use path_dedot::CWD;
@@ -276,6 +275,7 @@ pub trait Absolutize {
 }
 
 impl Absolutize for Path {
+    #[cfg(not(windows))]
     fn absolutize(&self) -> io::Result<PathBuf> {
         if self.is_absolute() {
             self.parse_dot()
@@ -283,6 +283,31 @@ impl Absolutize for Path {
             let path = Path::join(&CWD, self);
 
             path.parse_dot()
+        }
+    }
+
+    #[cfg(windows)]
+    fn absolutize(&self) -> io::Result<PathBuf> {
+        if self.is_absolute() {
+            self.parse_dot()
+        } else {
+            let prefix = self.get_path_prefix();
+
+            if let Some(prefix) = prefix {
+                let cwd = CWD.to_str().unwrap();
+
+                let cwd_prefix = CWD.get_path_prefix().unwrap();
+
+                let self_str = self.to_str().unwrap();
+
+                let path = PathBuf::from(format!(r"{}{}\{}", prefix.as_os_str().to_str().unwrap(), &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], &self_str[prefix.as_os_str().to_str().unwrap().len()..]));
+
+                path.parse_dot()
+            } else {
+                let path = Path::join(&CWD, self);
+
+                path.parse_dot()
+            }
         }
     }
 
@@ -522,7 +547,7 @@ mod tests {
 
         let cwd = CWD.to_str().unwrap();
 
-        let path = PathBuf::from(format!("{}{}", target_prefix, &cwd[cwd_prefix.as_os_str().len()..]));
+        let path = PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..]));
 
         assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
     }
