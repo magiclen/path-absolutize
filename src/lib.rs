@@ -516,7 +516,7 @@ mod tests {
 
         let cwd = CWD.to_str().unwrap();
 
-        let path = Path::new(format!("{}{}", target_prefix, &cwd[cwd_prefix.as_os_str().len()..]));
+        let path = PathBuf::from(format!("{}{}", target_prefix, &cwd[cwd_prefix.as_os_str().len()..]));
 
         assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
     }
