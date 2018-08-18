@@ -2,7 +2,7 @@ Path Absolutize
 ====================
 
 [![Build Status](https://travis-ci.org/magiclen/path-absolutize.svg?branch=master)](https://travis-ci.org/magiclen/path-absolutize)
-
+[![Build status](https://ci.appveyor.com/api/projects/status/tbgoyny0qbmxihsh?svg=true)](https://ci.appveyor.com/project/magiclen/path-absolutize)
 
 This is a library for extending `Path` and `PathBuf` in order to get an absolute path and remove the containing dots.
 
@@ -226,10 +226,6 @@ https://crates.io/crates/path-absolutize
 ## Documentation
 
 https://docs.rs/path-absolutize
-
-## About Windows
-
-For people who develop Rust programs on Windows, this crate may not be suitable because I don't have Windows to test it. However, you can always contribute your code if you like to make it windows supported.
 
 ## License
 
