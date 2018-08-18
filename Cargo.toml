@@ -11,4 +11,4 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-path-dedot = "1.0.5"
+path-dedot = "1.1.3"
