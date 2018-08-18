@@ -413,7 +413,7 @@ mod tests {
     fn absolutize_lv0_1() {
         let p = Path::new(r"\path\to\123\456");
 
-        assert_eq!(Path::join(Path::new(CWD.get_path_prefix().unwrap().as_os_str()), Path::new(r"path\to\123\456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
+        assert_eq!(Path::join(Path::new(CWD.get_path_prefix().unwrap().as_os_str()), Path::new(r"\path\to\123\456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
     }
 
     #[test]
@@ -429,7 +429,7 @@ mod tests {
     fn absolutize_lv0_2() {
         let p = Path::new(r"\path\to\.\123\..\456");
 
-        assert_eq!(Path::join(Path::new(CWD.get_path_prefix().unwrap().as_os_str()), Path::new(r"path\to\456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
+        assert_eq!(Path::join(Path::new(CWD.get_path_prefix().unwrap().as_os_str()), Path::new(r"\path\to\456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
     }
 
     #[test]
