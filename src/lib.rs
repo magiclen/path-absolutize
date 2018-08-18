@@ -512,7 +512,7 @@ mod tests {
             "D:"
         };
 
-        let target = Path::new(format!(r"{}123\567", target_prefix));
+        let target = PathBuf::from(format!(r"{}123\567", target_prefix));
 
         let cwd = CWD.to_str().unwrap();
 
