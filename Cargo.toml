@@ -15,4 +15,4 @@ travis-ci = { repository = "magiclen/path-absolutize", branch = "master" }
 appveyor = { repository = "magiclen/path-absolutize", branch = "master", service = "github" }
 
 [dependencies]
-path-dedot = "1.1.5"
+path-dedot = "1.1.6"

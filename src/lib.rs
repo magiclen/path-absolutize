@@ -557,6 +557,58 @@ mod tests {
     }
 
     #[test]
+    #[cfg(windows)]
+    #[ignore]
+    // Ignored because it may not be standard
+    fn absolutize_lv5() {
+        let cwd_prefix = CWD.get_path_prefix().unwrap();
+
+        let target_prefix = if cwd_prefix.as_os_str().ne("C:") {
+            "C:"
+        } else {
+            "D:"
+        };
+
+        let target = PathBuf::from(format!(r"{}.\123\567", target_prefix));
+
+        let cwd = CWD.to_str().unwrap();
+
+        let path = PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..]));
+
+        assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
+    }
+
+    #[test]
+    #[cfg(windows)]
+    #[ignore]
+    // Ignored because it may not be standard
+    fn absolutize_lv6() {
+        let cwd_prefix = CWD.get_path_prefix().unwrap();
+
+        let target_prefix = if cwd_prefix.as_os_str().ne("C:") {
+            "C:"
+        } else {
+            "D:"
+        };
+
+        let target = PathBuf::from(format!(r"{}..\123\567", target_prefix));
+
+        let cwd_parent = CWD.parent();
+
+        let path = match cwd_parent {
+            Some(cwd_parent) => {
+                let cwd_parent = cwd_parent.to_str().unwrap();
+                PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd_parent[cwd_prefix.as_os_str().to_str().unwrap().len()..]))
+            }
+            None => {
+                PathBuf::from(format!(r"{}\123\567", target_prefix))
+            }
+        };
+
+        assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
+    }
+
+    #[test]
     #[cfg(not(windows))]
     fn virtually_absolutize_lv0_1() {
         let p = Path::new("/path/to/123/456");
