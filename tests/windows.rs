@@ -1,10 +1,12 @@
 #![cfg(windows)]
 
 extern crate path_absolutize;
+extern crate path_dedot;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use path_absolutize::{CWD, Absolutize};
+use path_dedot::ParsePrefix;
 
 #[test]
 fn absolutize_lv0_1() {
