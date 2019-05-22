@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "1.1.3"
+version = "1.1.4"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/path-absolutize"
 homepage = "https://magiclen.org/path-absolutize"
@@ -15,4 +15,5 @@ travis-ci = { repository = "magiclen/path-absolutize", branch = "master" }
 appveyor = { repository = "magiclen/path-absolutize", branch = "master", service = "github" }
 
 [dependencies]
-path-dedot = "1.1.6"
+path-dedot = "1.1.10"
+slash-formatter = "2.2.1"

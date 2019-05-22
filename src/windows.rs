@@ -21,7 +21,13 @@ impl Absolutize for Path {
 
                 let self_str = self.to_str().unwrap();
 
-                let path = PathBuf::from(format!(r"{}{}\{}", prefix.as_os_str().to_str().unwrap(), &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], &self_str[prefix.as_os_str().to_str().unwrap().len()..]));
+                let path = &self_str[prefix.as_os_str().to_str().unwrap().len()..];
+
+                let path = if path.is_empty() {
+                    PathBuf::from(super::slash_formatter::add_end_backslash(prefix.as_os_str().to_str().unwrap()))
+                } else {
+                    PathBuf::from(concat_with_backslash!(prefix.as_os_str().to_str().unwrap(), &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], path))
+                };
 
                 path.parse_dot()
             } else {

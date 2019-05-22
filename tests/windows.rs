@@ -1,5 +1,8 @@
 #![cfg(windows)]
 
+#[macro_use]
+extern crate slash_formatter;
+
 extern crate path_absolutize;
 extern crate path_dedot;
 
@@ -82,7 +85,7 @@ fn absolutize_lv4() {
 
     let cwd = CWD.to_str().unwrap();
 
-    let path = PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..]));
+    let path = PathBuf::from(concat_with_backslash!(target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], r"123\567"));
 
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
 }
@@ -103,7 +106,7 @@ fn absolutize_lv5() {
 
     let cwd = CWD.to_str().unwrap();
 
-    let path = PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..]));
+    let path = PathBuf::from(concat_with_backslash!(target_prefix, &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], r"123\567"));
 
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
 }
@@ -127,12 +130,47 @@ fn absolutize_lv6() {
     let path = match cwd_parent {
         Some(cwd_parent) => {
             let cwd_parent = cwd_parent.to_str().unwrap();
-            PathBuf::from(format!(r"{}{}\123\567", target_prefix, &cwd_parent[cwd_prefix.as_os_str().to_str().unwrap().len()..]))
+
+            PathBuf::from(concat_with_backslash!(target_prefix, &cwd_parent[cwd_prefix.as_os_str().to_str().unwrap().len()..], r"123\567"))
         }
         None => {
-            PathBuf::from(format!(r"{}\123\567", target_prefix))
+            PathBuf::from(concat_with_backslash!(target_prefix, r"123\567"))
         }
     };
 
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
+fn prefix_1() {
+    let p = Path::new(r"C:\");
+
+    assert_eq!(r"C:\", p.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
+#[ignore]
+// Ignored because it may not be standard
+fn prefix_2() {
+    let p = Path::new(r"C:");
+
+    assert_eq!(r"C:\", p.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
+#[ignore]
+// Ignored because it may not be standard
+fn prefix_3() {
+    let p = Path::new(r"\\VBOXSRV\test");
+
+    assert_eq!(r"\\VBOXSRV\test\", p.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
+#[ignore]
+// Ignored because it may not be standard
+fn prefix_4() {
+    let p = Path::new(r"\\VBOXSRV\test\");
+
+    assert_eq!(r"\\VBOXSRV\test\", p.absolutize().unwrap().to_str().unwrap());
 }

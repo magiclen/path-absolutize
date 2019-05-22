@@ -1,5 +1,9 @@
 extern crate path_dedot;
 
+#[cfg(windows)]
+#[macro_use]
+extern crate slash_formatter;
+
 use std::path::{Path, PathBuf};
 use std::io;
 
