@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "1.1.5"
+version = "1.1.6"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/path-absolutize"
 homepage = "https://magiclen.org/path-absolutize"
@@ -10,9 +10,9 @@ description= "A library for extending `Path` and `PathBuf` in order to get an ab
 readme = "README.md"
 license = "MIT"
 
-[badges]
-travis-ci = { repository = "magiclen/path-absolutize", branch = "master" }
-appveyor = { repository = "magiclen/path-absolutize", branch = "master", service = "github" }
+[badges.travis-ci]
+repository = "magiclen/path-absolutize"
+branch = "master"
 
 [dependencies]
 path-dedot = "1.1.11"

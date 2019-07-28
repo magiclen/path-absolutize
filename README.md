@@ -2,7 +2,6 @@ Path Absolutize
 ====================
 
 [![Build Status](https://travis-ci.org/magiclen/path-absolutize.svg?branch=master)](https://travis-ci.org/magiclen/path-absolutize)
-[![Build status](https://ci.appveyor.com/api/projects/status/tbgoyny0qbmxihsh?svg=true)](https://ci.appveyor.com/project/magiclen/path-absolutize)
 
 This is a library for extending `Path` and `PathBuf` in order to get an absolute path and remove the containing dots.
 
