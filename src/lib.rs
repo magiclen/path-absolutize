@@ -4,8 +4,8 @@ extern crate path_dedot;
 #[macro_use]
 extern crate slash_formatter;
 
-use std::path::{Path, PathBuf};
 use std::io;
+use std::path::{Path, PathBuf};
 
 /// Current working directory.
 pub use path_dedot::CWD;
@@ -30,11 +30,9 @@ pub trait Absolutize {
     ///
     /// use path_absolutize::*;
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("/path/to/123/456");
     ///
     ///     assert_eq!("/path/to/123/456", p.absolutize().unwrap().to_str().unwrap());
-    ///
     /// }
     /// ```
     ///
@@ -46,11 +44,9 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("/path/to/./123/../456");
     ///
     ///     assert_eq!("/path/to/456", p.absolutize().unwrap().to_str().unwrap());
-    ///
     /// }
     /// ```
     ///
@@ -64,11 +60,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("./path/to/123/456");
     ///
-    ///     assert_eq!(Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///
+    ///     assert_eq!(
+    ///         Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+    ///         p.absolutize().unwrap().to_str().unwrap()
+    ///     );
     /// }
     /// ```
     ///
@@ -82,20 +79,24 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("../path/to/123/456");
     ///
     ///     let cwd_parent = CWD.parent();
     ///
     ///     match cwd_parent {
-    ///        Some(cwd_parent) => {
-    ///        assert_eq!(Path::join(&cwd_parent, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///        }
-    ///        None => {
-    ///            assert_eq!(Path::join(Path::new("/"), Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///        }
+    ///         Some(cwd_parent) => {
+    ///             assert_eq!(
+    ///                 Path::join(&cwd_parent, Path::new("path/to/123/456")).to_str().unwrap(),
+    ///                 p.absolutize().unwrap().to_str().unwrap()
+    ///             );
+    ///         }
+    ///         None => {
+    ///             assert_eq!(
+    ///                 Path::join(Path::new("/"), Path::new("path/to/123/456")).to_str().unwrap(),
+    ///                 p.absolutize().unwrap().to_str().unwrap()
+    ///             );
+    ///         }
     ///     }
-    ///
     /// }
     /// ```
     ///
@@ -109,11 +110,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("path/to/123/456");
     ///
-    ///     assert_eq!(Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///
+    ///     assert_eq!(
+    ///         Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+    ///         p.absolutize().unwrap().to_str().unwrap()
+    ///     );
     /// }
     /// ```
     ///
@@ -125,20 +127,24 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("path/../../to/123/456");
     ///
     ///     let cwd_parent = CWD.parent();
     ///
     ///     match cwd_parent {
-    ///       Some(cwd_parent) => {
-    ///            assert_eq!(Path::join(&cwd_parent, Path::new("to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///       }
-    ///       None => {
-    ///           assert_eq!(Path::join(Path::new("/"), Path::new("to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-    ///       }
-    /// }
-    ///
+    ///         Some(cwd_parent) => {
+    ///             assert_eq!(
+    ///                 Path::join(&cwd_parent, Path::new("to/123/456")).to_str().unwrap(),
+    ///                 p.absolutize().unwrap().to_str().unwrap()
+    ///             );
+    ///         }
+    ///         None => {
+    ///             assert_eq!(
+    ///                 Path::join(Path::new("/"), Path::new("to/123/456")).to_str().unwrap(),
+    ///                 p.absolutize().unwrap().to_str().unwrap()
+    ///             );
+    ///         }
+    ///     }
     /// }
     /// ```
     fn absolutize(&self) -> io::Result<PathBuf>;
@@ -159,11 +165,9 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("/path/to/123/456");
     ///
     ///     assert_eq!("/path/to/123/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
-    ///
     /// }
     /// ```
     ///
@@ -175,11 +179,9 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("/path/to/./123/../456");
     ///
     ///     assert_eq!("/path/to/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
-    ///
     /// }
     /// ```
     ///
@@ -195,11 +197,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("/path/to/123/456");
     ///
-    ///     assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
-    ///
+    ///     assert_eq!(
+    ///         ErrorKind::InvalidInput,
+    ///         p.absolutize_virtually("/virtual/root").unwrap_err().kind()
+    ///     );
     /// }
     /// ```
     ///
@@ -215,11 +218,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("./path/to/123/456");
     ///
-    ///     assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
-    ///
+    ///     assert_eq!(
+    ///         ErrorKind::InvalidInput,
+    ///         p.absolutize_virtually("/virtual/root").unwrap_err().kind()
+    ///     );
     /// }
     /// ```
     ///
@@ -233,11 +237,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("../path/to/123/456");
     ///
-    ///     assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
-    ///
+    ///     assert_eq!(
+    ///         ErrorKind::InvalidInput,
+    ///         p.absolutize_virtually("/virtual/root").unwrap_err().kind()
+    ///     );
     /// }
     /// ```
     ///
@@ -251,11 +256,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("path/to/123/456");
     ///
-    ///     assert_eq!("/virtual/root/path/to/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
-    ///
+    ///     assert_eq!(
+    ///         "/virtual/root/path/to/123/456",
+    ///         p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap()
+    ///     );
     /// }
     /// ```
     ///
@@ -267,11 +273,12 @@ pub trait Absolutize {
     /// use path_absolutize::*;
     ///
     /// if cfg!(not(windows)) {
-    ///
     ///     let p = Path::new("path/to/../../../../123/456");
     ///
-    ///     assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
-    ///
+    ///     assert_eq!(
+    ///         "/virtual/root/123/456",
+    ///         p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap()
+    ///     );
     /// }
     /// ```
     fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<PathBuf>;

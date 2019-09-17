@@ -2,10 +2,10 @@
 
 use super::Absolutize;
 
-use std::path::{Path, PathBuf};
 use std::io::{self, ErrorKind};
+use std::path::{Path, PathBuf};
 
-use path_dedot::{CWD, ParseDot};
+use path_dedot::{ParseDot, CWD};
 
 impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<PathBuf> {
@@ -41,7 +41,7 @@ impl Absolutize for Path {
             } else {
                 virtual_root.push(path);
 
-                return Ok(virtual_root);
+                Ok(virtual_root)
             }
         }
     }

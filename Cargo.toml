@@ -1,7 +1,8 @@
 [package]
 name = "path-absolutize"
-version = "1.1.6"
+version = "1.1.7"
 authors = ["Magic Len <len@magiclen.org>"]
+edition = "2018"
 repository = "https://github.com/magiclen/path-absolutize"
 homepage = "https://magiclen.org/path-absolutize"
 keywords = ["path", "dot", "dedot", "absolute", "canonical"]

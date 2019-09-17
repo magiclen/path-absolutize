@@ -2,10 +2,10 @@
 
 use super::Absolutize;
 
-use std::path::{Path, PathBuf};
 use std::io::{self, ErrorKind};
+use std::path::{Path, PathBuf};
 
-use path_dedot::{CWD, ParseDot, ParsePrefix};
+use path_dedot::{ParseDot, ParsePrefix, CWD};
 
 impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<PathBuf> {
@@ -24,9 +24,15 @@ impl Absolutize for Path {
                 let path = &self_str[prefix.as_os_str().to_str().unwrap().len()..];
 
                 let path = if path.is_empty() {
-                    PathBuf::from(super::slash_formatter::add_end_backslash(prefix.as_os_str().to_str().unwrap()))
+                    PathBuf::from(super::slash_formatter::add_end_backslash(
+                        prefix.as_os_str().to_str().unwrap(),
+                    ))
                 } else {
-                    PathBuf::from(concat_with_backslash!(prefix.as_os_str().to_str().unwrap(), &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..], path))
+                    PathBuf::from(concat_with_backslash!(
+                        prefix.as_os_str().to_str().unwrap(),
+                        &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..],
+                        path
+                    ))
                 };
 
                 path.parse_dot()
