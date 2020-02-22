@@ -6,7 +6,7 @@ use std::env;
 use std::io::ErrorKind;
 use std::path::Path;
 
-use path_absolutize::{Absolutize, update_cwd};
+use path_absolutize::{update_cwd, Absolutize};
 
 #[test]
 fn absolutize_lv0_1() {

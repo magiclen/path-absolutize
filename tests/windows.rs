@@ -9,7 +9,7 @@ extern crate path_dedot;
 use std::env;
 use std::path::{Path, PathBuf};
 
-use path_absolutize::{Absolutize, update_cwd};
+use path_absolutize::{update_cwd, Absolutize};
 use path_dedot::ParsePrefix;
 
 #[test]
