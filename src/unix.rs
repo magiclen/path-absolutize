@@ -12,7 +12,13 @@ impl Absolutize for Path {
         if self.is_absolute() {
             self.parse_dot()
         } else {
-            let path = Path::join(&CWD, self);
+            let cwd = unsafe {
+                CWD.initial();
+
+                &CWD
+            };
+
+            let path = Path::join(cwd, self);
 
             path.parse_dot()
         }

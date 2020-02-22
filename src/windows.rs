@@ -14,10 +14,16 @@ impl Absolutize for Path {
         } else {
             let prefix = self.get_path_prefix();
 
-            if let Some(prefix) = prefix {
-                let cwd = CWD.to_str().unwrap();
+            let cwd = unsafe {
+                CWD.initial();
 
-                let cwd_prefix = CWD.get_path_prefix().unwrap();
+                &CWD
+            };
+
+            if let Some(prefix) = prefix {
+                let cwd_prefix = cwd.get_path_prefix().unwrap();
+
+                let cwd = cwd.to_str().unwrap();
 
                 let self_str = self.to_str().unwrap();
 
@@ -37,7 +43,7 @@ impl Absolutize for Path {
 
                 path.parse_dot()
             } else {
-                let path = Path::join(&CWD, self);
+                let path = Path::join(cwd, self);
 
                 path.parse_dot()
             }

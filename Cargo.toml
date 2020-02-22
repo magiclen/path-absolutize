@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "1.1.7"
+version = "1.2.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/path-absolutize"
@@ -16,5 +16,5 @@ repository = "magiclen/path-absolutize"
 branch = "master"
 
 [dependencies]
-path-dedot = "1.1.11"
+path-dedot = "1.2.2"
 slash-formatter = "2.2.1"

@@ -7,11 +7,12 @@ extern crate slash_formatter;
 use std::io;
 use std::path::{Path, PathBuf};
 
-/// Current working directory.
+#[doc(hidden)]
 pub use path_dedot::CWD;
 
-/// The main separator for the target OS.
 pub use path_dedot::MAIN_SEPARATOR;
+
+pub use path_dedot::update_cwd;
 
 /// Make `Path` and `PathBuf` have `absolutize` and `absolutize_virtually` method.
 pub trait Absolutize {
@@ -55,6 +56,7 @@ pub trait Absolutize {
     /// ```
     /// extern crate path_absolutize;
     ///
+    /// use std::env;
     /// use std::path::Path;
     ///
     /// use path_absolutize::*;
@@ -63,7 +65,9 @@ pub trait Absolutize {
     ///     let p = Path::new("./path/to/123/456");
     ///
     ///     assert_eq!(
-    ///         Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+    ///         Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+    ///             .to_str()
+    ///             .unwrap(),
     ///         p.absolutize().unwrap().to_str().unwrap()
     ///     );
     /// }
@@ -74,6 +78,7 @@ pub trait Absolutize {
     /// ```
     /// extern crate path_absolutize;
     ///
+    /// use std::env;
     /// use std::path::Path;
     ///
     /// use path_absolutize::*;
@@ -81,7 +86,9 @@ pub trait Absolutize {
     /// if cfg!(not(windows)) {
     ///     let p = Path::new("../path/to/123/456");
     ///
-    ///     let cwd_parent = CWD.parent();
+    ///     let cwd = env::current_dir().unwrap();
+    ///
+    ///     let cwd_parent = cwd.parent();
     ///
     ///     match cwd_parent {
     ///         Some(cwd_parent) => {
@@ -105,6 +112,7 @@ pub trait Absolutize {
     /// ```
     /// extern crate path_absolutize;
     ///
+    /// use std::env;
     /// use std::path::Path;
     ///
     /// use path_absolutize::*;
@@ -113,7 +121,9 @@ pub trait Absolutize {
     ///     let p = Path::new("path/to/123/456");
     ///
     ///     assert_eq!(
-    ///         Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+    ///         Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+    ///             .to_str()
+    ///             .unwrap(),
     ///         p.absolutize().unwrap().to_str().unwrap()
     ///     );
     /// }
@@ -122,6 +132,7 @@ pub trait Absolutize {
     /// ```
     /// extern crate path_absolutize;
     ///
+    /// use std::env;
     /// use std::path::Path;
     ///
     /// use path_absolutize::*;
@@ -129,7 +140,9 @@ pub trait Absolutize {
     /// if cfg!(not(windows)) {
     ///     let p = Path::new("path/../../to/123/456");
     ///
-    ///     let cwd_parent = CWD.parent();
+    ///     let cwd = env::current_dir().unwrap();
+    ///
+    ///     let cwd_parent = cwd.parent();
     ///
     ///     match cwd_parent {
     ///         Some(cwd_parent) => {

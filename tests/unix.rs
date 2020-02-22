@@ -2,10 +2,11 @@
 
 extern crate path_absolutize;
 
+use std::env;
 use std::io::ErrorKind;
 use std::path::Path;
 
-use path_absolutize::{Absolutize, CWD};
+use path_absolutize::{Absolutize, update_cwd};
 
 #[test]
 fn absolutize_lv0_1() {
@@ -26,7 +27,9 @@ fn absolutize_lv1_1() {
     let p = Path::new("./path/to/123/456");
 
     assert_eq!(
-        Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+            .to_str()
+            .unwrap(),
         p.absolutize().unwrap().to_str().unwrap()
     );
 }
@@ -35,7 +38,9 @@ fn absolutize_lv1_1() {
 fn absolutize_lv1_2() {
     let p = Path::new("../path/to/123/456");
 
-    let cwd_parent = CWD.parent();
+    let cwd = env::current_dir().unwrap();
+
+    let cwd_parent = cwd.parent();
 
     match cwd_parent {
         Some(cwd_parent) => {
@@ -58,7 +63,9 @@ fn absolutize_lv2() {
     let p = Path::new("path/to/123/456");
 
     assert_eq!(
-        Path::join(&CWD, Path::new("path/to/123/456")).to_str().unwrap(),
+        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+            .to_str()
+            .unwrap(),
         p.absolutize().unwrap().to_str().unwrap()
     );
 }
@@ -67,7 +74,9 @@ fn absolutize_lv2() {
 fn absolutize_lv3() {
     let p = Path::new("path/../../to/123/456");
 
-    let cwd_parent = CWD.parent();
+    let cwd = env::current_dir().unwrap();
+
+    let cwd_parent = cwd.parent();
 
     match cwd_parent {
         Some(cwd_parent) => {
@@ -83,6 +92,31 @@ fn absolutize_lv3() {
             );
         }
     }
+}
+
+#[test]
+fn absolutize_after_updating_cwd() {
+    let p = Path::new("path/to/123/456");
+
+    assert_eq!(
+        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+            .to_str()
+            .unwrap(),
+        p.absolutize().unwrap().to_str().unwrap()
+    );
+
+    env::set_current_dir("/").unwrap();
+
+    unsafe {
+        update_cwd();
+    }
+
+    assert_eq!(
+        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
+            .to_str()
+            .unwrap(),
+        p.absolutize().unwrap().to_str().unwrap()
+    );
 }
 
 #[test]
