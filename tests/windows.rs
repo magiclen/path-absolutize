@@ -210,6 +210,7 @@ fn absolutize_lv6() {
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
 }
 
+#[ignore]
 #[test]
 fn absolutize_after_updating_cwd() {
     let p = Path::new(r"path\to\123\456");

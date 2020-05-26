@@ -15,9 +15,7 @@ impl Absolutize for Path {
             let prefix = self.get_path_prefix();
 
             let cwd = unsafe {
-                CWD.initial();
-
-                &CWD
+                CWD.initial()
             };
 
             if let Some(prefix) = prefix {
@@ -43,7 +41,7 @@ impl Absolutize for Path {
 
                 path.parse_dot()
             } else {
-                let path = Path::join(cwd, self);
+                let path = Path::join(cwd.as_path(), self);
 
                 path.parse_dot()
             }

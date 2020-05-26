@@ -13,12 +13,10 @@ impl Absolutize for Path {
             self.parse_dot()
         } else {
             let cwd = unsafe {
-                CWD.initial();
-
-                &CWD
+                CWD.initial()
             };
 
-            let path = Path::join(cwd, self);
+            let path = Path::join(cwd.as_path(), self);
 
             path.parse_dot()
         }

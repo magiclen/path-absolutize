@@ -94,6 +94,7 @@ fn absolutize_lv3() {
     }
 }
 
+#[ignore]
 #[test]
 fn absolutize_after_updating_cwd() {
     let p = Path::new("path/to/123/456");
