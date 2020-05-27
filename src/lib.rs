@@ -330,14 +330,7 @@ cargo bench --no-default-features --features unsafe_cache
 #[cfg(all(feature = "lazy_static_cache", feature = "unsafe_cache"))]
 compile_error!("You can only enable at most one caching mechanism for `path-absolutize`.");
 
-#[cfg(not(any(feature = "lazy_static_cache", feature = "unsafe_cache")))]
 pub extern crate path_dedot;
-
-#[cfg(feature = "lazy_static_cache")]
-pub extern crate path_dedot_lazy_static_cache as path_dedot;
-
-#[cfg(feature = "unsafe_cache")]
-pub extern crate path_dedot_unsafe_cache as path_dedot;
 
 use std::io;
 use std::path::{Path, PathBuf};
