@@ -7,7 +7,7 @@ use crate::Absolutize;
 
 impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<PathBuf> {
-        let mut size = self.as_os_str().len();
+        let mut size = self.as_os_str().len() + 1;
 
         let mut iter = self.components();
 
@@ -28,9 +28,16 @@ impl Absolutize for Path {
                             Component::CurDir => {
                                 // may be unreachable
 
-                                for token in cwd.iter().skip(1) {
+                                let mut cwd_iter = cwd.iter().skip(1);
+
+                                if let Some(token) = cwd_iter.next() {
                                     tokens.push(token);
                                     size += token.len();
+
+                                    for token in cwd_iter {
+                                        tokens.push(token);
+                                        size += token.len() + 1;
+                                    }
                                 }
 
                                 size -= 1;
@@ -38,9 +45,16 @@ impl Absolutize for Path {
                             Component::ParentDir => {
                                 match cwd.parent() {
                                     Some(cwd_parent) => {
-                                        for token in cwd_parent.iter().skip(1) {
+                                        let mut cwd_parent_iter = cwd_parent.iter().skip(1);
+
+                                        if let Some(token) = cwd_parent_iter.next() {
                                             tokens.push(token);
                                             size += token.len();
+
+                                            for token in cwd_iter {
+                                                tokens.push(token);
+                                                size += token.len() + 1;
+                                            }
                                         }
 
                                         size -= 2;
@@ -58,21 +72,24 @@ impl Absolutize for Path {
                                 })?;
 
                                 if path_str[first_component.as_os_str().len()..].starts_with('.') {
-                                    for token in cwd.iter().skip(1) {
+                                    let mut cwd_iter = cwd.iter().skip(1);
+
+                                    if let Some(token) = cwd_iter.next() {
                                         tokens.push(token);
                                         size += token.len();
-                                    }
 
-                                    size -= 1;
+                                        for token in cwd_iter {
+                                            tokens.push(token);
+                                            size += token.len() + 1;
+                                        }
+                                    }
 
                                     tokens.push(second_component.as_os_str());
                                 } else {
                                     for token in cwd.iter().skip(1) {
                                         tokens.push(token);
-                                        size += token.len();
+                                        size += token.len() + 1;
                                     }
-
-                                    size += 1;
 
                                     tokens.push(second_component.as_os_str());
                                 }
@@ -179,7 +196,7 @@ impl Absolutize for Path {
             Ok(path_buf)
         } else {
             #[allow(clippy::identity_conversion)]
-            Ok(cwd.into())
+                Ok(cwd.into())
         }
     }
 
