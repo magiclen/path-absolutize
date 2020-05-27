@@ -12,8 +12,8 @@ os:
 
 script:
   - cargo test --verbose
-  - cargo test --verbose --no-default-features --features lazy_static_cache
-  - cargo test --verbose absolutize_after_updating_cwd --no-default-features --features unsafe_cache
+  - cargo test --verbose --features lazy_static_cache
+  - cargo test --verbose absolutize_after_updating_cwd --features unsafe_cache
 
 matrix:
   include:
