@@ -314,13 +314,13 @@ cargo bench
 #### lazy_static_cache
 
 ```bash
-cargo bench --no-default-features --features lazy_static_cache
+cargo bench --features lazy_static_cache
 ```
 
 #### unsafe_cache
 
 ```bash
-cargo bench --no-default-features --features unsafe_cache
+cargo bench --features unsafe_cache
 ```
 
 */
