@@ -3,7 +3,6 @@
 extern crate path_absolutize;
 
 use std::env;
-use std::io::ErrorKind;
 use std::path::Path;
 
 use path_absolutize::{update_cwd, Absolutize};
