@@ -51,7 +51,7 @@ impl Absolutize for Path {
                                             tokens.push(token);
                                             size += token.len();
 
-                                            for token in cwd_iter {
+                                            for token in cwd_parent_iter {
                                                 tokens.push(token);
                                                 size += token.len() + 1;
                                             }
@@ -84,11 +84,20 @@ impl Absolutize for Path {
                                         }
                                     }
 
+                                    size -= 1;
+
                                     tokens.push(second_component.as_os_str());
                                 } else {
-                                    for token in cwd.iter().skip(1) {
+                                    let mut cwd_iter = cwd.iter().skip(1);
+
+                                    if let Some(token) = cwd_iter.next() {
                                         tokens.push(token);
-                                        size += token.len() + 1;
+                                        size += token.len();
+
+                                        for token in cwd_iter {
+                                            tokens.push(token);
+                                            size += token.len() + 1;
+                                        }
                                     }
 
                                     tokens.push(second_component.as_os_str());
