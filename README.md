@@ -227,7 +227,7 @@ assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwr
 
 ## Caching
 
-By default, the `absolutize` method creates a new `PathBuf` instance of the CWD every time in its operation. The overhead is obvious. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
+By default, the `absolutize` method and the `absolutize_virtually` method create a new `PathBuf` instance of the CWD every time in their operation. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
 
 In order to parse paths with better performance, this crate provides two ways to cache the CWD.
 
@@ -238,7 +238,6 @@ Enabling the `lazy_static_cache` feature can let this crate use `lazy_static` to
 ```toml
 [dependencies.path-absolutize]
 version = "*"
-default-features = false
 features = ["lazy_static_cache"]
 ```
 
@@ -251,7 +250,6 @@ You need to use the `update_cwd` function to initialize the CWD first. The funct
 ```toml
 [dependencies.path-absolutize]
 version = "*"
-default-features = false
 features = ["unsafe_cache"]
 ```
 
