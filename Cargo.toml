@@ -22,27 +22,13 @@ slash-formatter = "2.2.6"
 version = "2"
 optional = true
 
-[dependencies.path-dedot-lazy-static-cache]
-package = "path-dedot"
-version = "2"
-default-features = false
-features = ["lazy_static_cache"]
-optional = true
-
-[dependencies.path-dedot-unsafe-cache]
-package = "path-dedot"
-version = "2"
-default-features = false
-features = ["unsafe_cache"]
-optional = true
-
 [dev-dependencies]
 bencher = "0.1.5"
 
 [features]
 default = ["path-dedot"]
-lazy_static_cache = ["path-dedot-lazy-static-cache"]
-unsafe_cache = ["path-dedot-unsafe-cache"]
+lazy_static_cache = ["path-dedot/lazy_static_cache"]
+unsafe_cache = ["path-dedot/unsafe_cache"]
 
 [[bench]]
 name = "bench"
