@@ -15,12 +15,12 @@ license = "MIT"
 repository = "magiclen/path-absolutize"
 branch = "master"
 
-[dependencies]
-slash-formatter = "2.2.6"
-
 [dependencies.path-dedot]
 version = "2"
 optional = true
+
+[target.'cfg(windows)'.dependencies]
+slash-formatter = "2.2.6"
 
 [dev-dependencies]
 bencher = "0.1.5"
