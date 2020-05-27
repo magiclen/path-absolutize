@@ -34,14 +34,14 @@ impl Absolutize for Path {
                                 tokens.push(token);
                             }
 
-                            size += cwd_parent.as_os_str().len();
+                            size += cwd_parent.as_os_str().len() - 2;
                         }
                         None => {
                             tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                            size -= 1;
                         }
                     }
-
-                    size -= 2;
                 }
                 _ => {
                     for token in cwd.iter() {

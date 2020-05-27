@@ -42,13 +42,15 @@ impl Absolutize for Path {
                                             tokens.push(token);
                                             size += token.len();
                                         }
+
+                                        size -= 2;
                                     }
                                     None => {
                                         tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                        size -= 1;
                                     }
                                 }
-
-                                size -= 2;
                             }
                             _ => {
                                 let path_str = self.as_os_str().to_str().ok_or_else(|| {
@@ -103,7 +105,7 @@ impl Absolutize for Path {
                                 tokens.push(token);
                             }
 
-                            size += cwd_parent.as_os_str().len();
+                            size += cwd_parent.as_os_str().len() - 2;
                         }
                         None => {
                             let prefix = cwd.get_path_prefix().unwrap().as_os_str();
@@ -111,10 +113,9 @@ impl Absolutize for Path {
                             size += prefix.len();
 
                             tokens.push(MAIN_SEPARATOR.as_os_str());
+                            size -= 1;
                         }
                     }
-
-                    size -= 2;
                 }
                 Component::Normal(token) => {
                     for token in cwd.iter() {
