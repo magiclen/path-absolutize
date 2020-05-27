@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "1.2.1"
+version = "2.0.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/path-absolutize"
@@ -16,5 +16,34 @@ repository = "magiclen/path-absolutize"
 branch = "master"
 
 [dependencies]
-path-dedot = "1.2.4"
-slash-formatter = "2.2.1"
+slash-formatter = "2.2.6"
+
+[dependencies.path-dedot]
+version = "2"
+optional = true
+
+[dependencies.path-dedot-lazy-static-cache]
+package = "path-dedot"
+version = "2"
+default-features = false
+features = ["lazy_static_cache"]
+optional = true
+
+[dependencies.path-dedot-unsafe-cache]
+package = "path-dedot"
+version = "2"
+default-features = false
+features = ["unsafe_cache"]
+optional = true
+
+[dev-dependencies]
+bencher = "0.1.5"
+
+[features]
+default = ["path-dedot"]
+lazy_static_cache = ["path-dedot-lazy-static-cache"]
+unsafe_cache = ["path-dedot-unsafe-cache"]
+
+[[bench]]
+name = "bench"
+harness = false

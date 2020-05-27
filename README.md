@@ -18,63 +18,62 @@ There are two methods you can use.
 Get an absolute path.
 
 The dots in a path will be parsed even if it is already an absolute path (which means the path starts with a `MAIN_SEPARATOR` on Unix-like systems).
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("/path/to/123/456");
-    
+
 assert_eq!("/path/to/123/456", p.absolutize().unwrap().to_str().unwrap());
 ```
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("/path/to/./123/../456");
-    
+
 assert_eq!("/path/to/456", p.absolutize().unwrap().to_str().unwrap());
 ```
-    
-If a path starts with a single dot, the dot means **current working directory**. 
-    
+
+If a path starts with a single dot, the dot means your program's **current working directory** (CWD).
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
 use std::env;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("./path/to/123/456");
-    
+
 assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
 ```
 
-
-If a path starts with a pair of dots, the dots means the parent of **current working directory**. If **current working directory** is **root**, the parent is still **root**.
+If a path starts with a pair of dots, the dots means the parent of the CWD. If the CWD is **root**, the parent is still **root**.
 
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
 use std::env;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("../path/to/123/456");
 
 let cwd = env::current_dir().unwrap();
-    
+
 let cwd_parent = cwd.parent();
-    
+
 match cwd_parent {
    Some(cwd_parent) => {
        assert_eq!(Path::join(&cwd_parent, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
@@ -86,34 +85,34 @@ match cwd_parent {
 ```
 
 A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will act like having a single dot at the start when `absolutize` method is used.
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
 use std::env;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("path/to/123/456");
-    
+
 assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
 ```
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
 use std::env;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("path/../../to/123/456");
 
 let cwd = env::current_dir().unwrap();
-    
+
 let cwd_parent = cwd.parent();
-    
+
 match cwd_parent {
    Some(cwd_parent) => {
        assert_eq!(Path::join(&cwd_parent, Path::new("to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
@@ -129,101 +128,175 @@ match cwd_parent {
 Get an absolute path **only under a specific directory**.
 
 The dots in a path will be parsed even if it is already an absolute path (which means the path starts with a `MAIN_SEPARATOR` on Unix-like systems).
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("/path/to/123/456");
-    
+
 assert_eq!("/path/to/123/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
 ```
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("/path/to/./123/../456");
-    
+
 assert_eq!("/path/to/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
 ```
-    
+
 Every absolute path should under the virtual root.
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use std::io::ErrorKind;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("/path/to/123/456");
-    
+
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 ```
-    
+
 Every relative path should under the virtual root.
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use std::io::ErrorKind;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("./path/to/123/456");
-    
+
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 ```
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use std::io::ErrorKind;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("../path/to/123/456");
-    
+
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 ```
-    
+
 A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will be located in the virtual root after the `absolutize_virtually` method is used.
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("path/to/123/456");
-    
+
 assert_eq!("/virtual/root/path/to/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
 ```
-    
+
 ```rust
 extern crate path_absolutize;
-    
+
 use std::path::Path;
-    
+
 use path_absolutize::*;
-    
+
 let p = Path::new("path/to/../../../../123/456");
-    
+
 assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
+```
+
+## Caching
+
+By default, the `absolutize` method creates a new `PathBuf` instance of the CWD every time in its operation. The overhead is obvious. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
+
+In order to parse paths with better performance, this crate provides two ways to cache the CWD.
+
+### lazy_static_cache
+
+Enabling the `lazy_static_cache` feature can let this crate use `lazy_static` to cache the CWD. It's thread-safe and does not need to modify any code, but once the CWD is cached, it cannot be changed anymore at runtime.
+
+```toml
+[dependencies.path-absolutize]
+version = "*"
+default-features = false
+features = ["lazy_static_cache"]
+```
+
+### unsafe_cache
+
+Enabling the `unsafe_cache` feature can let this crate use a mutable static variable to cache the CWD. It allows the program to change the CWD at runtime by the program itself, but it's not thread-safe.
+
+You need to use the `update_cwd` function to initialize the CWD first. The function should also be used to update the CWD after the CWD is changed.
+
+```toml
+[dependencies.path-absolutize]
+version = "*"
+default-features = false
+features = ["unsafe_cache"]
+```
+
+```rust
+extern crate path_absolutize;
+
+use std::path::Path;
+
+use path_absolutize::*;
+
+unsafe {
+    update_cwd();
+}
+
+let p = Path::new("./path/to/123/456");
+
+println!("{}", p.absolutize().unwrap().to_str().unwrap());
+
+std::env::set_current_dir("/").unwrap();
+
+unsafe {
+    update_cwd();
+}
+
+println!("{}", p.absolutize().unwrap().to_str().unwrap());
+```
+
+## Benchmark
+
+#### No-cache
+
+```bash
+cargo bench
+```
+
+#### lazy_static_cache
+
+```bash
+cargo bench --no-default-features --features lazy_static_cache
+```
+
+#### unsafe_cache
+
+```bash
+cargo bench --no-default-features --features unsafe_cache
 ```
 
 ## Crates.io

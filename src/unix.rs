@@ -1,22 +1,19 @@
-#![cfg(not(windows))]
-
-use super::Absolutize;
-
 use std::io::{self, ErrorKind};
 use std::path::{Path, PathBuf};
 
-use path_dedot::{ParseDot, CWD};
+use crate::Absolutize;
+
+use crate::path_dedot::ParseDot;
 
 impl Absolutize for Path {
+    #[allow(clippy::let_unit_value)]
     fn absolutize(&self) -> io::Result<PathBuf> {
         if self.is_absolute() {
             self.parse_dot()
         } else {
-            let cwd = unsafe {
-                CWD.initial()
-            };
+            let _cwd = get_cwd_pathbuf!();
 
-            let path = Path::join(cwd.as_path(), self);
+            let path = Path::join(get_cwd!(_cwd), self);
 
             path.parse_dot()
         }

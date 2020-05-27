@@ -1,16 +1,15 @@
-#![cfg(windows)]
+#![cfg(all(windows, not(feature = "unsafe_cache")))]
 
 #[macro_use]
 extern crate slash_formatter;
 
 extern crate path_absolutize;
-extern crate path_dedot;
 
 use std::env;
 use std::path::{Path, PathBuf};
 
-use path_absolutize::{update_cwd, Absolutize};
-use path_dedot::ParsePrefix;
+use path_absolutize::path_dedot::ParsePrefix;
+use path_absolutize::Absolutize;
 
 #[test]
 fn absolutize_lv0_1() {
@@ -208,36 +207,6 @@ fn absolutize_lv6() {
     };
 
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
-}
-
-#[ignore]
-#[test]
-fn absolutize_after_updating_cwd() {
-    let p = Path::new(r"path\to\123\456");
-
-    assert_eq!(
-        Path::join(env::current_dir().unwrap().as_path(), Path::new(r"path\to\123\456"))
-            .to_str()
-            .unwrap(),
-        p.absolutize().unwrap().to_str().unwrap()
-    );
-
-    let cwd = env::current_dir().unwrap();
-
-    let prefix = cwd.get_path_prefix().unwrap();
-
-    env::set_current_dir(Path::new(prefix.as_os_str())).unwrap();
-
-    unsafe {
-        update_cwd();
-    }
-
-    assert_eq!(
-        Path::join(env::current_dir().unwrap().as_path(), Path::new(r"path\to\123\456"))
-            .to_str()
-            .unwrap(),
-        p.absolutize().unwrap().to_str().unwrap()
-    );
 }
 
 #[test]

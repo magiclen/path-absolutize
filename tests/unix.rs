@@ -1,4 +1,4 @@
-#![cfg(not(windows))]
+#![cfg(all(unix, not(feature = "unsafe_cache")))]
 
 extern crate path_absolutize;
 
@@ -6,7 +6,7 @@ use std::env;
 use std::io::ErrorKind;
 use std::path::Path;
 
-use path_absolutize::{update_cwd, Absolutize};
+use path_absolutize::Absolutize;
 
 #[test]
 fn absolutize_lv0_1() {
@@ -92,32 +92,6 @@ fn absolutize_lv3() {
             );
         }
     }
-}
-
-#[ignore]
-#[test]
-fn absolutize_after_updating_cwd() {
-    let p = Path::new("path/to/123/456");
-
-    assert_eq!(
-        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
-            .to_str()
-            .unwrap(),
-        p.absolutize().unwrap().to_str().unwrap()
-    );
-
-    env::set_current_dir("/").unwrap();
-
-    unsafe {
-        update_cwd();
-    }
-
-    assert_eq!(
-        Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456"))
-            .to_str()
-            .unwrap(),
-        p.absolutize().unwrap().to_str().unwrap()
-    );
 }
 
 #[test]

@@ -1,22 +1,21 @@
-#![cfg(windows)]
-
-use super::Absolutize;
+extern crate slash_formatter;
 
 use std::io::{self, ErrorKind};
 use std::path::{Path, PathBuf};
 
-use path_dedot::{ParseDot, ParsePrefix, CWD};
+use crate::path_dedot::{ParseDot, ParsePrefix};
+use crate::Absolutize;
 
 impl Absolutize for Path {
+    #[allow(clippy::let_unit_value)]
     fn absolutize(&self) -> io::Result<PathBuf> {
         if self.is_absolute() {
             self.parse_dot()
         } else {
             let prefix = self.get_path_prefix();
 
-            let cwd = unsafe {
-                CWD.initial()
-            };
+            let _cwd = get_cwd_pathbuf!();
+            let cwd = get_cwd!(_cwd);
 
             if let Some(prefix) = prefix {
                 let cwd_prefix = cwd.get_path_prefix().unwrap();
@@ -28,11 +27,11 @@ impl Absolutize for Path {
                 let path = &self_str[prefix.as_os_str().to_str().unwrap().len()..];
 
                 let path = if path.is_empty() {
-                    PathBuf::from(super::slash_formatter::add_end_backslash(
+                    PathBuf::from(slash_formatter::add_end_backslash(
                         prefix.as_os_str().to_str().unwrap(),
                     ))
                 } else {
-                    PathBuf::from(concat_with_backslash!(
+                    PathBuf::from(slash_formatter::concat_with_backslash!(
                         prefix.as_os_str().to_str().unwrap(),
                         &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..],
                         path
@@ -41,7 +40,7 @@ impl Absolutize for Path {
 
                 path.parse_dot()
             } else {
-                let path = Path::join(cwd.as_path(), self);
+                let path = Path::join(cwd, self);
 
                 path.parse_dot()
             }
@@ -79,7 +78,7 @@ impl Absolutize for Path {
             } else {
                 virtual_root.push(path);
 
-                return Ok(virtual_root);
+                Ok(virtual_root)
             }
         }
     }
