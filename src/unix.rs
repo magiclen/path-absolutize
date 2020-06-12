@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::ffi::OsString;
 use std::io::{self, ErrorKind};
 use std::path::{Component, Path, PathBuf};
@@ -6,10 +7,12 @@ use crate::path_dedot::{ParseDot, MAIN_SEPARATOR};
 use crate::Absolutize;
 
 impl Absolutize for Path {
-    fn absolutize(&self) -> io::Result<PathBuf> {
+    fn absolutize(&self) -> io::Result<Cow<Path>> {
         let mut size = self.as_os_str().len();
 
         let mut iter = self.components();
+
+        let mut has_change = false;
 
         let cwd = get_cwd!();
 
@@ -26,6 +29,8 @@ impl Absolutize for Path {
                     }
 
                     size += cwd.as_os_str().len() - 1;
+
+                    has_change = true;
                 }
                 Component::ParentDir => {
                     match cwd.parent() {
@@ -42,6 +47,8 @@ impl Absolutize for Path {
                             size -= 1;
                         }
                     }
+
+                    has_change = true;
                 }
                 _ => {
                     for token in cwd.iter() {
@@ -51,6 +58,8 @@ impl Absolutize for Path {
                     size += cwd.as_os_str().len() + 1;
 
                     tokens.push(first_component.as_os_str());
+
+                    has_change = true;
                 }
             }
 
@@ -58,8 +67,9 @@ impl Absolutize for Path {
                 match component {
                     Component::CurDir => {
                         // may be unreachable
-
                         size -= 2;
+
+                        has_change = true;
                     }
                     Component::ParentDir => {
                         let tokens_length = tokens.len();
@@ -70,6 +80,8 @@ impl Absolutize for Path {
                         } else {
                             size -= 3; // ../
                         }
+
+                        has_change = true;
                     }
                     _ => {
                         tokens.push(component.as_os_str());
@@ -79,37 +91,40 @@ impl Absolutize for Path {
 
             debug_assert!(!tokens.is_empty());
 
-            let mut path_string = OsString::with_capacity(size);
+            if has_change {
+                let mut path_string = OsString::with_capacity(size);
 
-            let mut iter = tokens.iter();
+                let mut iter = tokens.iter();
 
-            path_string.push(iter.next().unwrap());
+                path_string.push(iter.next().unwrap());
 
-            let tokens_length = tokens.len();
+                let tokens_length = tokens.len();
 
-            if tokens_length > 1 {
-                for &token in iter.take(tokens_length - 2) {
-                    path_string.push(token);
+                if tokens_length > 1 {
+                    for &token in iter.take(tokens_length - 2) {
+                        path_string.push(token);
 
-                    path_string.push(MAIN_SEPARATOR.as_os_str());
+                        path_string.push(MAIN_SEPARATOR.as_os_str());
+                    }
+
+                    path_string.push(tokens[tokens_length - 1]);
                 }
 
-                path_string.push(tokens[tokens_length - 1]);
+                debug_assert!(size >= path_string.len());
+
+                let path_buf = PathBuf::from(path_string);
+
+                Ok(Cow::from(path_buf))
+            } else {
+                Ok(Cow::from(self))
             }
-
-            debug_assert!(size >= path_string.len());
-
-            let path_buf = PathBuf::from(path_string);
-
-            Ok(path_buf)
         } else {
-            #[allow(clippy::identity_conversion)]
-            Ok(cwd.into())
+            Ok(Cow::from(cwd))
         }
     }
 
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<PathBuf> {
-        let mut virtual_root = virtual_root.as_ref().absolutize()?;
+    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
+        let virtual_root = virtual_root.as_ref().absolutize()?;
 
         if self.is_absolute() {
             let path = self.parse_dot()?;
@@ -129,9 +144,11 @@ impl Absolutize for Path {
 
                 Ok(path)
             } else {
+                let mut virtual_root = virtual_root.into_owned();
+
                 virtual_root.push(path);
 
-                Ok(virtual_root)
+                Ok(Cow::from(virtual_root))
             }
         }
     }

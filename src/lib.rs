@@ -330,6 +330,7 @@ compile_error!("You can only enable at most one caching mechanism for `path-abso
 
 pub extern crate path_dedot;
 
+use std::borrow::Cow;
 use std::io;
 use std::path::{Path, PathBuf};
 
@@ -354,12 +355,12 @@ pub use absolutize::*;
 
 impl Absolutize for PathBuf {
     #[inline]
-    fn absolutize(&self) -> io::Result<PathBuf> {
+    fn absolutize(&self) -> io::Result<Cow<Path>> {
         self.as_path().absolutize()
     }
 
     #[inline]
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<PathBuf> {
+    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
         self.as_path().absolutize_virtually(virtual_root)
     }
 }
