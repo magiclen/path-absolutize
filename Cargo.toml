@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "3.0.0"
+version = "3.0.1"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/path-absolutize"
@@ -22,7 +22,7 @@ path-dedot = "3"
 bencher = "0.1.5"
 
 [target.'cfg(windows)'.dev-dependencies]
-slash-formatter = "2.2.6"
+slash-formatter = "3"
 
 [features]
 lazy_static_cache = ["path-dedot/lazy_static_cache"]

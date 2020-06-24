@@ -139,7 +139,7 @@ fn absolutize_lv4() {
 
     let cwd = cwd.to_str().unwrap();
 
-    let path = PathBuf::from(concat_with_backslash!(
+    let path = PathBuf::from(backslash!(
         target_prefix,
         &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..],
         r"123\567"
@@ -166,7 +166,7 @@ fn absolutize_lv5() {
 
     let cwd = cwd.to_str().unwrap();
 
-    let path = PathBuf::from(concat_with_backslash!(
+    let path = PathBuf::from(backslash!(
         target_prefix,
         &cwd[cwd_prefix.as_os_str().to_str().unwrap().len()..],
         r"123\567"
@@ -197,13 +197,13 @@ fn absolutize_lv6() {
         Some(cwd_parent) => {
             let cwd_parent = cwd_parent.to_str().unwrap();
 
-            PathBuf::from(concat_with_backslash!(
+            PathBuf::from(backslash!(
                 target_prefix,
                 &cwd_parent[cwd_prefix.as_os_str().to_str().unwrap().len()..],
                 r"123\567"
             ))
         }
-        None => PathBuf::from(concat_with_backslash!(target_prefix, r"123\567")),
+        None => PathBuf::from(backslash!(target_prefix, r"123\567")),
     };
 
     assert_eq!(path.to_str().unwrap(), target.absolutize().unwrap().to_str().unwrap());
