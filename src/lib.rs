@@ -255,6 +255,16 @@ By default, the `absolutize` method and the `absolutize_virtually` method create
 
 In order to parse paths with better performance, this crate provides two ways to cache the CWD.
 
+### once_cell_cache
+
+Enabling the `once_cell_cache` feature can let this crate use `once_cell` to cache the CWD. It's thread-safe and does not need to modify any code, but once the CWD is cached, it cannot be changed anymore at runtime.
+
+```toml
+[dependencies.path-absolutize]
+version = "*"
+features = ["once_cell_cache"]
+```
+
 ### lazy_static_cache
 
 Enabling the `lazy_static_cache` feature can let this crate use `lazy_static` to cache the CWD. It's thread-safe and does not need to modify any code, but once the CWD is cached, it cannot be changed anymore at runtime.
@@ -311,6 +321,12 @@ println!("{}", p.absolutize().unwrap().to_str().unwrap());
 cargo bench
 ```
 
+#### once_cell_cache
+
+```bash
+cargo bench --features once_cell_cache
+```
+
 #### lazy_static_cache
 
 ```bash
@@ -325,7 +341,11 @@ cargo bench --features unsafe_cache
 
 */
 
-#[cfg(all(feature = "lazy_static_cache", feature = "unsafe_cache"))]
+#[cfg(any(
+all(feature = "lazy_static_cache", feature = "unsafe_cache"),
+all(feature = "once_cell_cache", feature = "unsafe_cache"),
+all(feature = "lazy_static_cache", feature = "once_cell_cache")
+))]
 compile_error!("You can only enable at most one caching mechanism for `path-absolutize`.");
 
 pub extern crate path_dedot;
@@ -334,7 +354,7 @@ use std::borrow::Cow;
 use std::io;
 use std::path::{Path, PathBuf};
 
-#[cfg(any(feature = "lazy_static_cache", feature = "unsafe_cache"))]
+#[cfg(any(feature = "once_cell_cache", feature = "lazy_static_cache", feature = "unsafe_cache"))]
 pub use path_dedot::CWD;
 
 #[cfg(feature = "unsafe_cache")]
