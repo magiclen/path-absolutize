@@ -229,7 +229,7 @@ assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwr
 
 By default, the `absolutize` method and the `absolutize_virtually` method create a new `PathBuf` instance of the CWD every time in their operation. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
 
-In order to parse paths with better performance, this crate provides two ways to cache the CWD.
+In order to parse paths with better performance, this crate provides three ways to cache the CWD.
 
 ### once_cell_cache
 
