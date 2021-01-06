@@ -73,6 +73,16 @@ fn absolutize_lv0_4() {
 
 #[test]
 fn absolutize_lv1_1() {
+    let p = Path::new(r".");
+
+    assert_eq!(
+        env::current_dir().unwrap().to_str().unwrap(),
+        p.absolutize().unwrap().to_str().unwrap()
+    );
+}
+
+#[test]
+fn absolutize_lv1_2() {
     let p = Path::new(r".\path\to\123\456");
 
     assert_eq!(
@@ -84,7 +94,28 @@ fn absolutize_lv1_1() {
 }
 
 #[test]
-fn absolutize_lv1_2() {
+fn absolutize_lv1_3() {
+    let p = Path::new(r"..");
+
+    let cwd = env::current_dir().unwrap();
+
+    let cwd_parent = cwd.parent();
+
+    match cwd_parent {
+        Some(cwd_parent) => {
+            assert_eq!(cwd_parent.to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
+        }
+        None => {
+            assert_eq!(
+                Path::new(cwd.get_path_prefix().unwrap().as_os_str()).to_str().unwrap(),
+                p.absolutize().unwrap().to_str().unwrap()
+            );
+        }
+    }
+}
+
+#[test]
+fn absolutize_lv1_4() {
     let p = Path::new(r"..\path\to\123\456");
 
     let cwd = env::current_dir().unwrap();
