@@ -23,6 +23,20 @@ fn absolutize_lv0_2() {
 }
 
 #[test]
+fn absolutize_lv0_3() {
+    let p = Path::new("/../");
+
+    assert_eq!("/", p.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv0_4() {
+    let p = Path::new("/..");
+
+    assert_eq!("/", p.absolutize().unwrap().to_str().unwrap());
+}
+
+#[test]
 fn absolutize_lv1_1() {
     let p = Path::new("./path/to/123/456");
 

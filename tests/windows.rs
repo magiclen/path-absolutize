@@ -42,6 +42,36 @@ fn absolutize_lv0_2() {
 }
 
 #[test]
+fn absolutize_lv0_3() {
+    let p = Path::new(r"\..\");
+
+    assert_eq!(
+        Path::join(
+            Path::new(env::current_dir().unwrap().get_path_prefix().unwrap().as_os_str()),
+            Path::new(r"\"),
+        )
+        .to_str()
+        .unwrap(),
+        p.absolutize().unwrap().to_str().unwrap()
+    );
+}
+
+#[test]
+fn absolutize_lv0_4() {
+    let p = Path::new(r"\..");
+
+    assert_eq!(
+        Path::join(
+            Path::new(env::current_dir().unwrap().get_path_prefix().unwrap().as_os_str()),
+            Path::new(r"\"),
+        )
+        .to_str()
+        .unwrap(),
+        p.absolutize().unwrap().to_str().unwrap()
+    );
+}
+
+#[test]
 fn absolutize_lv1_1() {
     let p = Path::new(r".\path\to\123\456");
 
