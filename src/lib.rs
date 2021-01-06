@@ -342,9 +342,9 @@ cargo bench --features unsafe_cache
 */
 
 #[cfg(any(
-all(feature = "lazy_static_cache", feature = "unsafe_cache"),
-all(feature = "once_cell_cache", feature = "unsafe_cache"),
-all(feature = "lazy_static_cache", feature = "once_cell_cache")
+    all(feature = "lazy_static_cache", feature = "unsafe_cache"),
+    all(feature = "once_cell_cache", feature = "unsafe_cache"),
+    all(feature = "lazy_static_cache", feature = "once_cell_cache")
 ))]
 compile_error!("You can only enable at most one caching mechanism for `path-absolutize`.");
 
@@ -354,7 +354,11 @@ use std::borrow::Cow;
 use std::io;
 use std::path::{Path, PathBuf};
 
-#[cfg(any(feature = "once_cell_cache", feature = "lazy_static_cache", feature = "unsafe_cache"))]
+#[cfg(any(
+    feature = "once_cell_cache",
+    feature = "lazy_static_cache",
+    feature = "unsafe_cache"
+))]
 pub use path_dedot::CWD;
 
 #[cfg(feature = "unsafe_cache")]

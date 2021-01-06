@@ -39,7 +39,8 @@ impl Absolutize for Path {
                                 tokens.push(token);
                             }
 
-                            size += cwd_parent.as_os_str().len() - 2;
+                            size += cwd_parent.as_os_str().len();
+                            size -= 2;
                         }
                         None => {
                             tokens.push(MAIN_SEPARATOR.as_os_str());
@@ -110,7 +111,7 @@ impl Absolutize for Path {
                     path_string.push(tokens[tokens_length - 1]);
                 }
 
-                debug_assert!(size >= path_string.len());
+                debug_assert!(size + 1 >= path_string.len()); // +1 to avoid the ending slash missing
 
                 let path_buf = PathBuf::from(path_string);
 

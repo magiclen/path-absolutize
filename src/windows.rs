@@ -146,7 +146,8 @@ impl Absolutize for Path {
                                 tokens.push(token);
                             }
 
-                            size += cwd_parent.as_os_str().len() - 2;
+                            size += cwd_parent.as_os_str().len();
+                            size -= 2;
                         }
                         None => {
                             let prefix = cwd.get_path_prefix().unwrap().as_os_str();
@@ -221,7 +222,7 @@ impl Absolutize for Path {
                     path_string.push(tokens[tokens_length - 1]);
                 }
 
-                debug_assert!(size >= path_string.len());
+                debug_assert!(size + 1 >= path_string.len()); // +1 to avoid the ending slash missing
 
                 let path_buf = PathBuf::from(path_string);
 
@@ -234,7 +235,7 @@ impl Absolutize for Path {
                 path_string.push(iter.next().unwrap());
                 path_string.push(iter.next().unwrap());
 
-                debug_assert!(size + 1 >= path_string.len()); // + 1 is for `\\server\share` -> `\\server\share\`
+                debug_assert!(size + 1 >= path_string.len()); // +1 to avoid the ending slash missing
 
                 let path_buf = PathBuf::from(path_string);
 
