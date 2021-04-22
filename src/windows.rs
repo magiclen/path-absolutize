@@ -62,35 +62,17 @@ impl Absolutize for Path {
                                 has_change = true;
                             }
                             _ => {
-                                let path_str = self.as_os_str().to_str().ok_or_else(|| {
-                                    io::Error::new(ErrorKind::Other, "The path is not valid UTF-8.")
-                                })?;
+                                let mut cwd_iter = cwd.iter().skip(1);
 
-                                if path_str[first_component.as_os_str().len()..].starts_with('.') {
-                                    let mut cwd_iter = cwd.iter().skip(1);
+                                if let Some(token) = cwd_iter.next() {
+                                    tokens.push(token);
 
-                                    if let Some(token) = cwd_iter.next() {
+                                    for token in cwd_iter {
                                         tokens.push(token);
-
-                                        for token in cwd_iter {
-                                            tokens.push(token);
-                                        }
                                     }
-
-                                    tokens.push(second_component.as_os_str());
-                                } else {
-                                    let mut cwd_iter = cwd.iter().skip(1);
-
-                                    if let Some(token) = cwd_iter.next() {
-                                        tokens.push(token);
-
-                                        for token in cwd_iter {
-                                            tokens.push(token);
-                                        }
-                                    }
-
-                                    tokens.push(second_component.as_os_str());
                                 }
+
+                                tokens.push(second_component.as_os_str());
 
                                 has_change = true;
                             }
