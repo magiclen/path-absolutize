@@ -8,8 +8,6 @@ use crate::Absolutize;
 
 impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<Cow<Path>> {
-        let mut size = self.as_os_str().len();
-
         let mut iter = self.components();
 
         let mut has_change = false;
@@ -28,8 +26,6 @@ impl Absolutize for Path {
                         tokens.push(token);
                     }
 
-                    size += cwd.as_os_str().len() - 1;
-
                     has_change = true;
                 }
                 Component::ParentDir => {
@@ -38,14 +34,9 @@ impl Absolutize for Path {
                             for token in cwd_parent.iter() {
                                 tokens.push(token);
                             }
-
-                            size += cwd_parent.as_os_str().len();
-                            size -= 2;
                         }
                         None => {
                             tokens.push(MAIN_SEPARATOR.as_os_str());
-
-                            size -= 1;
                         }
                     }
 
@@ -55,8 +46,6 @@ impl Absolutize for Path {
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
-
-                    size += cwd.as_os_str().len() + 1;
 
                     tokens.push(first_component.as_os_str());
 
@@ -68,18 +57,13 @@ impl Absolutize for Path {
                 match component {
                     Component::CurDir => {
                         // may be unreachable
-                        size -= 2;
-
                         has_change = true;
                     }
                     Component::ParentDir => {
                         let tokens_length = tokens.len();
 
                         if tokens_length > 1 {
-                            let removed = tokens.remove(tokens_length - 1);
-                            size -= removed.len() + 4; // xxx/../
-                        } else {
-                            size -= 3; // ../
+                            tokens.remove(tokens_length - 1);
                         }
 
                         has_change = true;
@@ -90,16 +74,18 @@ impl Absolutize for Path {
                 }
             }
 
-            debug_assert!(!tokens.is_empty());
+            let tokens_length = tokens.len();
 
-            if has_change {
+            debug_assert!(tokens_length > 0);
+
+            let size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len()) - 1;
+
+            if has_change || size != self.as_os_str().len() {
                 let mut path_string = OsString::with_capacity(size);
 
                 let mut iter = tokens.iter();
 
                 path_string.push(iter.next().unwrap());
-
-                let tokens_length = tokens.len();
 
                 if tokens_length > 1 {
                     for token in iter.take(tokens_length - 2) {
@@ -110,8 +96,6 @@ impl Absolutize for Path {
 
                     path_string.push(tokens[tokens_length - 1]);
                 }
-
-                debug_assert!(size + 1 >= path_string.len()); // +1 to avoid the ending slash missing
 
                 let path_buf = PathBuf::from(path_string);
 
