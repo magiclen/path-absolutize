@@ -1,6 +1,6 @@
 [package]
 name = "path-absolutize"
-version = "3.0.7"
+version = "3.0.8"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/path-absolutize"
@@ -12,12 +12,8 @@ readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs"]
 
-[badges.travis-ci]
-repository = "magiclen/path-absolutize"
-branch = "master"
-
 [dependencies]
-path-dedot = "3.0.4"
+path-dedot = "3.0.9"
 
 [dev-dependencies]
 bencher = "0.1.5"
