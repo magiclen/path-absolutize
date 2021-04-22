@@ -207,9 +207,9 @@ impl Absolutize for Path {
     fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
         let virtual_root = virtual_root.as_ref().absolutize()?;
 
-        if self.is_absolute() {
-            let path = self.parse_dot()?;
+        let path = self.parse_dot()?;
 
+        if path.is_absolute() {
             let path_lowercase = path
                 .to_str()
                 .ok_or_else(|| io::Error::new(ErrorKind::Other, "The path is not valid UTF-8."))?
@@ -228,35 +228,11 @@ impl Absolutize for Path {
 
             Ok(path)
         } else {
-            let path = self.parse_dot()?;
+            let mut virtual_root = virtual_root.into_owned();
 
-            if path.is_absolute() {
-                let path_lowercase = path
-                    .to_str()
-                    .ok_or_else(|| {
-                        io::Error::new(ErrorKind::Other, "The path is not valid UTF-8.")
-                    })?
-                    .to_lowercase();
+            virtual_root.push(path);
 
-                let virtual_root_lowercase = virtual_root
-                    .to_str()
-                    .ok_or_else(|| {
-                        io::Error::new(ErrorKind::Other, "The virtual root is not valid UTF-8.")
-                    })?
-                    .to_lowercase();
-
-                if !&path_lowercase.starts_with(&virtual_root_lowercase) {
-                    return Err(io::Error::from(ErrorKind::InvalidInput));
-                }
-
-                Ok(path)
-            } else {
-                let mut virtual_root = virtual_root.into_owned();
-
-                virtual_root.push(path);
-
-                Ok(Cow::from(virtual_root))
-            }
+            Ok(Cow::from(virtual_root))
         }
     }
 }

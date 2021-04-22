@@ -111,30 +111,20 @@ impl Absolutize for Path {
     fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
         let virtual_root = virtual_root.as_ref().absolutize()?;
 
-        if self.is_absolute() {
-            let path = self.parse_dot()?;
+        let path = self.parse_dot()?;
 
+        if path.is_absolute() {
             if !path.starts_with(&virtual_root) {
                 return Err(io::Error::from(ErrorKind::InvalidInput));
             }
 
             Ok(path)
         } else {
-            let path = self.parse_dot()?;
+            let mut virtual_root = virtual_root.into_owned();
 
-            if path.is_absolute() {
-                if !path.starts_with(&virtual_root) {
-                    return Err(io::Error::from(ErrorKind::InvalidInput));
-                }
+            virtual_root.push(path);
 
-                Ok(path)
-            } else {
-                let mut virtual_root = virtual_root.into_owned();
-
-                virtual_root.push(path);
-
-                Ok(Cow::from(virtual_root))
-            }
+            Ok(Cow::from(virtual_root))
         }
     }
 }
