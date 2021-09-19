@@ -7,8 +7,10 @@ use crate::path_dedot::{ParseDot, MAIN_SEPARATOR};
 use crate::Absolutize;
 
 impl Absolutize for Path {
+    #[inline]
     fn absolutize(&self) -> io::Result<Cow<Path>> {
         let cwd = get_cwd!();
+
         self.absolutize_from(&cwd)
     }
 
