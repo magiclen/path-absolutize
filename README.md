@@ -123,6 +123,24 @@ match cwd_parent {
 }
 ```
 
+### Starting from a given current working directory
+
+With the `absolutize_from` function, you can provide the current working directory that the relative paths should be resolved from.
+
+```rs
+extern crate path_absolutize;
+
+use std::path::Path;
+
+use path_absolutize::*;
+
+let p = Path::new("../path/to/123/456");
+let cwd = env::current_dir().unwrap();
+
+println!("{}", p.absolutize_from(cwd).unwrap().to_str().unwrap());
+```
+
+
 ### absolutize_virtually
 
 Get an absolute path **only under a specific directory**.

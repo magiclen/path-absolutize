@@ -8,11 +8,14 @@ use crate::Absolutize;
 
 impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<Cow<Path>> {
+        let cwd = get_cwd!();
+        self.absolutize_from(&cwd)
+    }
+
+    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
         let mut iter = self.components();
 
         let mut has_change = false;
-
-        let cwd = get_cwd!();
 
         if let Some(first_component) = iter.next() {
             let mut tokens = Vec::new();
@@ -104,7 +107,7 @@ impl Absolutize for Path {
                 Ok(Cow::from(self))
             }
         } else {
-            Ok(Cow::from(cwd))
+            Ok(Cow::from(cwd.to_owned()))
         }
     }
 

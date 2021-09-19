@@ -384,6 +384,11 @@ impl Absolutize for PathBuf {
     }
 
     #[inline]
+    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
+        self.as_path().absolutize_from(cwd)
+    }
+
+    #[inline]
     fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
         self.as_path().absolutize_virtually(virtual_root)
     }
