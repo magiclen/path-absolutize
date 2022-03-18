@@ -1,13 +1,8 @@
-extern crate path_absolutize;
-
-#[macro_use]
-extern crate bencher;
-
 use path_absolutize::Absolutize;
 
 use std::path::Path;
 
-use bencher::Bencher;
+use bencher::{benchmark_group, benchmark_main, Bencher};
 
 fn abs_no_dots(bencher: &mut Bencher) {
     #[cfg(feature = "unsafe_cache")]

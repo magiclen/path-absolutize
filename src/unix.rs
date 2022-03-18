@@ -11,7 +11,7 @@ impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<Cow<Path>> {
         let cwd = get_cwd!();
 
-        self.absolutize_from(&cwd)
+        self.absolutize_from(cwd.as_ref())
     }
 
     fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {

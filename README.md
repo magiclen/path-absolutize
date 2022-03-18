@@ -20,8 +20,6 @@ Get an absolute path.
 The dots in a path will be parsed even if it is already an absolute path (which means the path starts with a `MAIN_SEPARATOR` on Unix-like systems).
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -32,8 +30,6 @@ assert_eq!("/path/to/123/456", p.absolutize().unwrap().to_str().unwrap());
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -46,8 +42,6 @@ assert_eq!("/path/to/456", p.absolutize().unwrap().to_str().unwrap());
 If a path starts with a single dot, the dot means your program's **current working directory** (CWD).
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 use std::env;
 
@@ -61,8 +55,6 @@ assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/
 If a path starts with a pair of dots, the dots means the parent of the CWD. If the CWD is **root**, the parent is still **root**.
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 use std::env;
 
@@ -87,8 +79,6 @@ match cwd_parent {
 A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will act like having a single dot at the start when `absolutize` method is used.
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 use std::env;
 
@@ -100,8 +90,6 @@ assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 use std::env;
 
@@ -127,9 +115,8 @@ match cwd_parent {
 
 With the `absolutize_from` function, you can provide the current working directory that the relative paths should be resolved from.
 
-```rs
-extern crate path_absolutize;
-
+```rust
+use std::env;
 use std::path::Path;
 
 use path_absolutize::*;
@@ -137,7 +124,7 @@ use path_absolutize::*;
 let p = Path::new("../path/to/123/456");
 let cwd = env::current_dir().unwrap();
 
-println!("{}", p.absolutize_from(cwd).unwrap().to_str().unwrap());
+println!("{}", p.absolutize_from(&cwd).unwrap().to_str().unwrap());
 ```
 
 
@@ -148,8 +135,6 @@ Get an absolute path **only under a specific directory**.
 The dots in a path will be parsed even if it is already an absolute path (which means the path starts with a `MAIN_SEPARATOR` on Unix-like systems).
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -160,8 +145,6 @@ assert_eq!("/path/to/123/456", p.absolutize_virtually("/").unwrap().to_str().unw
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -174,8 +157,6 @@ assert_eq!("/path/to/456", p.absolutize_virtually("/").unwrap().to_str().unwrap(
 Every absolute path should under the virtual root.
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use std::io::ErrorKind;
@@ -190,8 +171,6 @@ assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwr
 Every relative path should under the virtual root.
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use std::io::ErrorKind;
@@ -204,8 +183,6 @@ assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwr
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use std::io::ErrorKind;
@@ -220,8 +197,6 @@ assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwr
 A path which does not start with a `MAIN_SEPARATOR`, **Single Dot** and **Double Dots**, will be located in the virtual root after the `absolutize_virtually` method is used.
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -232,8 +207,6 @@ assert_eq!("/virtual/root/path/to/123/456", p.absolutize_virtually("/virtual/roo
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;
@@ -282,8 +255,6 @@ features = ["unsafe_cache"]
 ```
 
 ```rust
-extern crate path_absolutize;
-
 use std::path::Path;
 
 use path_absolutize::*;

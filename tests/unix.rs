@@ -1,7 +1,5 @@
 #![cfg(all(unix, not(feature = "unsafe_cache")))]
 
-extern crate path_absolutize;
-
 use std::env;
 use std::io::ErrorKind;
 use std::path::Path;
@@ -94,7 +92,7 @@ fn absolutize_lv1_4() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(
-                Path::join(&cwd_parent, Path::new("path/to/123/456")).to_str().unwrap(),
+                cwd_parent.join("path/to/123/456").to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
         }
@@ -130,7 +128,7 @@ fn absolutize_lv3() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(
-                Path::join(&cwd_parent, Path::new("to/123/456")).to_str().unwrap(),
+                cwd_parent.join("to/123/456").to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
         }

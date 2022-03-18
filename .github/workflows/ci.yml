@@ -28,7 +28,10 @@ jobs:
           toolchain: nightly
           override: true
           components: clippy
-      - run: cargo clippy -- -D warnings
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo clippy --all-targets --features once_cell_cache -- -D warnings
+      - run: cargo clippy --all-targets --features lazy_static_cache -- -D warnings
+      - run: cargo clippy --all-targets --features unsafe_cache -- -D warnings
 
   tests:
     strategy:

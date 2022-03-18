@@ -3,8 +3,6 @@
 #[macro_use]
 extern crate slash_formatter;
 
-extern crate path_absolutize;
-
 use std::env;
 use std::path::{Path, PathBuf};
 

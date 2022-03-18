@@ -1,7 +1,5 @@
 #![cfg(all(unix, feature = "unsafe_cache"))]
 
-extern crate path_absolutize;
-
 use std::env;
 use std::path::Path;
 
