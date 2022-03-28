@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::ffi::OsString;
 use std::io::{self, ErrorKind};
-use std::path::{Component, Path, PathBuf};
+use std::path::{Component, Path, PathBuf, Prefix, PrefixComponent};
 
 use crate::path_dedot::{ParseDot, ParsePrefix, MAIN_SEPARATOR};
 use crate::Absolutize;
@@ -27,59 +27,65 @@ impl Absolutize for Path {
                     tokens.push(prefix.as_os_str());
 
                     if let Some(second_component) = iter.next() {
-                        match second_component {
-                            Component::RootDir => {
-                                tokens.push(MAIN_SEPARATOR.as_os_str());
-                            }
-                            Component::CurDir => {
-                                // may be unreachable
-
-                                let mut cwd_iter = cwd.iter().skip(1);
-
-                                if let Some(token) = cwd_iter.next() {
-                                    tokens.push(token);
-
-                                    for token in cwd_iter {
-                                        tokens.push(token);
-                                    }
+                        if is_different_disk_relative_path(cwd, &prefix, &second_component)
+                        {
+                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                            tokens.push(second_component.as_os_str());
+                        } else {
+                            match second_component {
+                                Component::RootDir => {
+                                    tokens.push(MAIN_SEPARATOR.as_os_str());
                                 }
+                                Component::CurDir => {
+                                    // may be unreachable
 
-                                has_change = true;
-                            }
-                            Component::ParentDir => {
-                                match cwd.parent() {
-                                    Some(cwd_parent) => {
-                                        let mut cwd_parent_iter = cwd_parent.iter().skip(1);
+                                    let mut cwd_iter = cwd.iter().skip(1);
 
-                                        if let Some(token) = cwd_parent_iter.next() {
+                                    if let Some(token) = cwd_iter.next() {
+                                        tokens.push(token);
+
+                                        for token in cwd_iter {
                                             tokens.push(token);
-
-                                            for token in cwd_parent_iter {
-                                                tokens.push(token);
-                                            }
                                         }
                                     }
-                                    None => {
-                                        tokens.push(MAIN_SEPARATOR.as_os_str());
-                                    }
+
+                                    has_change = true;
                                 }
+                                Component::ParentDir => {
+                                    match cwd.parent() {
+                                        Some(cwd_parent) => {
+                                            let mut cwd_parent_iter = cwd_parent.iter().skip(1);
 
-                                has_change = true;
-                            }
-                            _ => {
-                                let mut cwd_iter = cwd.iter().skip(1);
+                                            if let Some(token) = cwd_parent_iter.next() {
+                                                tokens.push(token);
 
-                                if let Some(token) = cwd_iter.next() {
-                                    tokens.push(token);
+                                                for token in cwd_parent_iter {
+                                                    tokens.push(token);
+                                                }
+                                            }
+                                        }
+                                        None => {
+                                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                                        }
+                                    }
 
-                                    for token in cwd_iter {
+                                    has_change = true;
+                                }
+                                _ => {
+                                    let mut cwd_iter = cwd.iter().skip(1);
+
+                                    if let Some(token) = cwd_iter.next() {
                                         tokens.push(token);
+
+                                        for token in cwd_iter {
+                                            tokens.push(token);
+                                        }
                                     }
+
+                                    tokens.push(second_component.as_os_str());
+
+                                    has_change = true;
                                 }
-
-                                tokens.push(second_component.as_os_str());
-
-                                has_change = true;
                             }
                         }
                     } else {
@@ -222,4 +228,28 @@ impl Absolutize for Path {
             Ok(Cow::from(virtual_root))
         }
     }
+}
+
+/// Fix for: https://github.com/magiclen/path-absolutize/issues/9
+fn is_different_disk_relative_path(cwd: &Path, prefix: &PrefixComponent, second: &Component) -> bool {
+
+    if !matches!(prefix.kind(), Prefix::Disk(_)) {
+        return false
+    }
+
+    if !matches!(second, Component::Normal(_)) {
+        return false
+    }
+
+    let cwd_prefix = match cwd.components().next() {
+        Some(prefix) => prefix,
+        None => return false,
+    };
+
+    let cwd_prefix = match cwd_prefix {
+        Component::Prefix(prefix) => prefix,
+        _ => return false,
+    };
+
+    return cwd_prefix != *prefix;
 }
