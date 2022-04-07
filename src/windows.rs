@@ -196,6 +196,41 @@ impl Absolutize for Path {
             }
 
             Ok(path)
+        } else if let Some(prefix) = path.get_path_prefix() {
+            let prefix = prefix.as_os_str().to_str().ok_or_else(|| {
+                io::Error::new(ErrorKind::Other, "The prefix of the path is not valid UTF-8.")
+            })?;
+
+            let prefix_lowercase = prefix.to_lowercase();
+
+            let virtual_root_prefix_lowercase = virtual_root
+                .get_path_prefix()
+                .unwrap()
+                .as_os_str()
+                .to_str()
+                .ok_or_else(|| {
+                    io::Error::new(
+                        ErrorKind::Other,
+                        "The prefix of the virtual root is not valid UTF-8.",
+                    )
+                })?
+                .to_lowercase();
+
+            if prefix_lowercase == virtual_root_prefix_lowercase {
+                let path = path.to_str().ok_or_else(|| {
+                    io::Error::new(ErrorKind::Other, "The path is not valid UTF-8.")
+                })?;
+
+                let path_without_prefix = Path::new(&path[prefix.len()..]);
+
+                let mut virtual_root = virtual_root.into_owned();
+
+                virtual_root.push(path_without_prefix);
+
+                Ok(Cow::from(virtual_root))
+            } else {
+                Err(io::Error::from(ErrorKind::InvalidInput))
+            }
         } else {
             let mut virtual_root = virtual_root.into_owned();
 

@@ -316,3 +316,24 @@ fn prefix_4() {
 
     assert_eq!(r"\\VBOXSRV\test\", p.absolutize().unwrap().to_str().unwrap());
 }
+
+#[test]
+fn absolutize_virtually_1() {
+    let p = Path::new(r"123\456\");
+
+    assert_eq!(r"C:\123\456", p.absolutize_virtually(r"C:\").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_virtually_2() {
+    let p = Path::new(r"C:123\456\");
+
+    assert_eq!(r"C:\123\456", p.absolutize_virtually(r"C:\").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_virtually_3() {
+    let p = Path::new(r"C:123\456\");
+
+    assert!(matches!(p.absolutize_virtually(r"D:\"), Err(_)));
+}
