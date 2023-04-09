@@ -25,6 +25,12 @@ use path_absolutize::*;
 let p = Path::new("/path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/path/to/123/456", p.absolutize().unwrap().to_str().unwrap());
 # }
 ```
@@ -37,6 +43,12 @@ use path_absolutize::*;
 let p = Path::new("/path/to/./123/../456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/path/to/456", p.absolutize().unwrap().to_str().unwrap());
 # }
 ```
@@ -52,6 +64,12 @@ use path_absolutize::*;
 let p = Path::new("./path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
 # }
 ```
@@ -71,6 +89,12 @@ let cwd = env::current_dir().unwrap();
 let cwd_parent = cwd.parent();
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 match cwd_parent {
    Some(cwd_parent) => {
        assert_eq!(Path::join(&cwd_parent, Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
@@ -93,6 +117,12 @@ use path_absolutize::*;
 let p = Path::new("path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!(Path::join(env::current_dir().unwrap().as_path(), Path::new("path/to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
 # }
 ```
@@ -110,6 +140,12 @@ let cwd = env::current_dir().unwrap();
 let cwd_parent = cwd.parent();
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 match cwd_parent {
    Some(cwd_parent) => {
        assert_eq!(Path::join(&cwd_parent, Path::new("to/123/456")).to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
@@ -151,6 +187,12 @@ use path_absolutize::*;
 let p = Path::new("/path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/path/to/123/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
 # }
 ```
@@ -163,6 +205,12 @@ use path_absolutize::*;
 let p = Path::new("/path/to/./123/../456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/path/to/456", p.absolutize_virtually("/").unwrap().to_str().unwrap());
 # }
 ```
@@ -179,6 +227,12 @@ use path_absolutize::*;
 let p = Path::new("/path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 # }
 ```
@@ -195,6 +249,12 @@ use path_absolutize::*;
 let p = Path::new("./path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 # }
 ```
@@ -209,6 +269,12 @@ use path_absolutize::*;
 let p = Path::new("../path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!(ErrorKind::InvalidInput, p.absolutize_virtually("/virtual/root").unwrap_err().kind());
 # }
 ```
@@ -223,6 +289,12 @@ use path_absolutize::*;
 let p = Path::new("path/to/123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/virtual/root/path/to/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
 # }
 ```
@@ -235,6 +307,12 @@ use path_absolutize::*;
 let p = Path::new("path/to/../../../../123/456");
 
 # if cfg!(unix) {
+# #[cfg(feature = "unsafe_cache")]
+# {
+#     unsafe {
+#         update_cwd();
+#     }
+# }
 assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwrap().to_str().unwrap());
 # }
 ```
