@@ -338,19 +338,20 @@ compile_error!("You can only enable at most one caching mechanism for `path-abso
 
 pub extern crate path_dedot;
 
-use std::borrow::Cow;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::{
+    borrow::Cow,
+    io,
+    path::{Path, PathBuf},
+};
 
+#[cfg(feature = "unsafe_cache")]
+pub use path_dedot::update_cwd;
 #[cfg(any(
     feature = "once_cell_cache",
     feature = "lazy_static_cache",
     feature = "unsafe_cache"
 ))]
 pub use path_dedot::CWD;
-
-#[cfg(feature = "unsafe_cache")]
-pub use path_dedot::update_cwd;
 
 mod absolutize;
 

@@ -1,8 +1,7 @@
-use path_absolutize::Absolutize;
-
 use std::path::Path;
 
 use bencher::{benchmark_group, benchmark_main, Bencher};
+use path_absolutize::Absolutize;
 
 fn abs_no_dots(bencher: &mut Bencher) {
     #[cfg(feature = "unsafe_cache")]

@@ -1,10 +1,8 @@
 #![cfg(all(windows, feature = "unsafe_cache"))]
 
-use std::env;
-use std::path::Path;
+use std::{env, path::Path};
 
-use path_absolutize::path_dedot::ParsePrefix;
-use path_absolutize::{update_cwd, Absolutize};
+use path_absolutize::{path_dedot::ParsePrefix, update_cwd, Absolutize};
 
 #[test]
 fn absolutize_after_updating_cwd() {

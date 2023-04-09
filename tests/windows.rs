@@ -3,11 +3,12 @@
 #[macro_use]
 extern crate slash_formatter;
 
-use std::env;
-use std::path::{Path, PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
-use path_absolutize::path_dedot::ParsePrefix;
-use path_absolutize::Absolutize;
+use path_absolutize::{path_dedot::ParsePrefix, Absolutize};
 
 #[test]
 fn absolutize_lv0_1() {
@@ -117,13 +118,13 @@ fn absolutize_lv1_3() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(cwd_parent.to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-        }
+        },
         None => {
             assert_eq!(
                 Path::new(cwd.get_path_prefix().unwrap().as_os_str()).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
     }
 }
 
@@ -141,7 +142,7 @@ fn absolutize_lv1_4() {
                 Path::join(&cwd_parent, Path::new(r"path\to\123\456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
         None => {
             assert_eq!(
                 Path::join(
@@ -152,7 +153,7 @@ fn absolutize_lv1_4() {
                 .unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
     }
 }
 
@@ -182,7 +183,7 @@ fn absolutize_lv3() {
                 Path::join(&cwd_parent, Path::new(r"to\123\456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
         None => {
             assert_eq!(
                 Path::join(
@@ -193,7 +194,7 @@ fn absolutize_lv3() {
                 .unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
     }
 }
 
@@ -203,11 +204,7 @@ fn absolutize_lv4() {
 
     let cwd_prefix = cwd.get_path_prefix().unwrap();
 
-    let target_prefix = if cwd_prefix.as_os_str().ne("C:") {
-        "C:"
-    } else {
-        "D:"
-    };
+    let target_prefix = if cwd_prefix.as_os_str().ne("C:") { "C:" } else { "D:" };
 
     let target = PathBuf::from(format!(r"{}123\567", target_prefix));
 
@@ -230,11 +227,7 @@ fn absolutize_lv5() {
 
     let cwd_prefix = cwd.get_path_prefix().unwrap();
 
-    let target_prefix = if cwd_prefix.as_os_str().ne("C:") {
-        "C:"
-    } else {
-        "D:"
-    };
+    let target_prefix = if cwd_prefix.as_os_str().ne("C:") { "C:" } else { "D:" };
 
     let target = PathBuf::from(format!(r"{}.\123\567", target_prefix));
 
@@ -257,11 +250,7 @@ fn absolutize_lv6() {
 
     let cwd_prefix = cwd.get_path_prefix().unwrap();
 
-    let target_prefix = if cwd_prefix.as_os_str().ne("C:") {
-        "C:"
-    } else {
-        "D:"
-    };
+    let target_prefix = if cwd_prefix.as_os_str().ne("C:") { "C:" } else { "D:" };
 
     let target = PathBuf::from(format!(r"{}..\123\567", target_prefix));
 
@@ -276,7 +265,7 @@ fn absolutize_lv6() {
                 &cwd_parent[cwd_prefix.as_os_str().to_str().unwrap().len()..],
                 r"123\567"
             ))
-        }
+        },
         None => PathBuf::from(backslash!(target_prefix, r"123\567")),
     };
 

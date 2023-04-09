@@ -1,8 +1,6 @@
 #![cfg(all(unix, not(feature = "unsafe_cache")))]
 
-use std::env;
-use std::io::ErrorKind;
-use std::path::Path;
+use std::{env, io::ErrorKind, path::Path};
 
 use path_absolutize::Absolutize;
 
@@ -74,10 +72,10 @@ fn absolutize_lv1_3() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(cwd_parent.to_str().unwrap(), p.absolutize().unwrap().to_str().unwrap());
-        }
+        },
         None => {
             assert_eq!("/", p.absolutize().unwrap().to_str().unwrap());
-        }
+        },
     }
 }
 
@@ -95,13 +93,13 @@ fn absolutize_lv1_4() {
                 cwd_parent.join("path/to/123/456").to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
         None => {
             assert_eq!(
                 Path::join(Path::new("/"), Path::new("path/to/123/456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
     }
 }
 
@@ -131,13 +129,13 @@ fn absolutize_lv3() {
                 cwd_parent.join("to/123/456").to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
         None => {
             assert_eq!(
                 Path::join(Path::new("/"), Path::new("to/123/456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
-        }
+        },
     }
 }
 

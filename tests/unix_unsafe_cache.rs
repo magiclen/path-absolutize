@@ -1,7 +1,6 @@
 #![cfg(all(unix, feature = "unsafe_cache"))]
 
-use std::env;
-use std::path::Path;
+use std::{env, path::Path};
 
 use path_absolutize::{update_cwd, Absolutize};
 

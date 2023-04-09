@@ -1,10 +1,14 @@
-use std::borrow::Cow;
-use std::ffi::OsString;
-use std::io::{self, ErrorKind};
-use std::path::{Component, Path, PathBuf};
+use std::{
+    borrow::Cow,
+    ffi::OsString,
+    io::{self, ErrorKind},
+    path::{Component, Path, PathBuf},
+};
 
-use crate::path_dedot::{ParseDot, ParsePrefix, MAIN_SEPARATOR};
-use crate::Absolutize;
+use crate::{
+    path_dedot::{ParseDot, ParsePrefix, MAIN_SEPARATOR},
+    Absolutize,
+};
 
 impl Absolutize for Path {
     #[inline]
@@ -30,7 +34,7 @@ impl Absolutize for Path {
                         match second_component {
                             Component::RootDir => {
                                 tokens.push(MAIN_SEPARATOR.as_os_str());
-                            }
+                            },
                             Component::CurDir => {
                                 // may be unreachable
 
@@ -39,21 +43,21 @@ impl Absolutize for Path {
                                 }
 
                                 has_change = true;
-                            }
+                            },
                             Component::ParentDir => {
                                 match cwd.parent() {
                                     Some(cwd_parent) => {
                                         for token in cwd_parent.iter().skip(1) {
                                             tokens.push(token);
                                         }
-                                    }
+                                    },
                                     None => {
                                         tokens.push(MAIN_SEPARATOR.as_os_str());
-                                    }
+                                    },
                                 }
 
                                 has_change = true;
-                            }
+                            },
                             _ => {
                                 for token in cwd.iter().skip(1) {
                                     tokens.push(token);
@@ -62,14 +66,14 @@ impl Absolutize for Path {
                                 tokens.push(second_component.as_os_str());
 
                                 has_change = true;
-                            }
+                            },
                         }
                     } else {
                         tokens.push(MAIN_SEPARATOR.as_os_str());
 
                         has_change = true;
                     }
-                }
+                },
                 Component::RootDir => {
                     let prefix = cwd.get_path_prefix().unwrap().as_os_str();
                     tokens.push(prefix);
@@ -77,31 +81,31 @@ impl Absolutize for Path {
                     tokens.push(MAIN_SEPARATOR.as_os_str());
 
                     has_change = true;
-                }
+                },
                 Component::CurDir => {
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
 
                     has_change = true;
-                }
+                },
                 Component::ParentDir => {
                     match cwd.parent() {
                         Some(cwd_parent) => {
                             for token in cwd_parent.iter() {
                                 tokens.push(token);
                             }
-                        }
+                        },
                         None => {
                             let prefix = cwd.get_path_prefix().unwrap().as_os_str();
                             tokens.push(prefix);
 
                             tokens.push(MAIN_SEPARATOR.as_os_str());
-                        }
+                        },
                     }
 
                     has_change = true;
-                }
+                },
                 Component::Normal(token) => {
                     for token in cwd.iter() {
                         tokens.push(token);
@@ -110,7 +114,7 @@ impl Absolutize for Path {
                     tokens.push(token);
 
                     has_change = true;
-                }
+                },
             }
 
             for component in iter {
@@ -118,7 +122,7 @@ impl Absolutize for Path {
                     Component::CurDir => {
                         // may be unreachable
                         has_change = true;
-                    }
+                    },
                     Component::ParentDir => {
                         let tokens_length = tokens.len();
 
@@ -127,10 +131,10 @@ impl Absolutize for Path {
                         }
 
                         has_change = true;
-                    }
+                    },
                     _ => {
                         tokens.push(component.as_os_str());
-                    }
+                    },
                 }
             }
 

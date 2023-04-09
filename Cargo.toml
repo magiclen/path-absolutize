@@ -3,6 +3,7 @@ name = "path-absolutize"
 version = "3.0.14"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2021"
+rust-version = "1.56"
 repository = "https://github.com/magiclen/path-absolutize"
 homepage = "https://magiclen.org/path-absolutize"
 keywords = ["path", "dot", "dedot", "absolute", "canonical"]
