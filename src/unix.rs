@@ -15,10 +15,10 @@ impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<Cow<Path>> {
         let cwd = get_cwd!();
 
-        self.absolutize_from(cwd.as_ref())
+        Ok(self.absolutize_from(cwd.as_ref()))
     }
 
-    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
+    fn absolutize_from(&self, cwd: &Path) -> Cow<'_, Path> {
         let mut iter = self.components();
 
         let mut has_change = false;
@@ -108,12 +108,12 @@ impl Absolutize for Path {
 
                 let path_buf = PathBuf::from(path_string);
 
-                Ok(Cow::from(path_buf))
+                Cow::from(path_buf)
             } else {
-                Ok(Cow::from(self))
+                Cow::from(self)
             }
         } else {
-            Ok(Cow::from(cwd.to_owned()))
+            Cow::from(cwd.to_owned())
         }
     }
 
