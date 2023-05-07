@@ -170,7 +170,7 @@ use path_absolutize::*;
 let p = Path::new("../path/to/123/456");
 let cwd = env::current_dir().unwrap();
 
-println!("{}", p.absolutize_from(&cwd).unwrap().to_str().unwrap());
+println!("{}", p.absolutize_from(cwd).unwrap().to_str().unwrap());
 ```
 
 ### absolutize_virtually
@@ -451,12 +451,12 @@ impl Absolutize for PathBuf {
     }
 
     #[inline]
-    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
+    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> io::Result<Cow<'_, Path>> {
         self.as_path().absolutize_from(cwd)
     }
 
     #[inline]
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
+    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<Path>> {
         self.as_path().absolutize_virtually(virtual_root)
     }
 }

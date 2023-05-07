@@ -140,6 +140,62 @@ fn absolutize_lv3() {
 }
 
 #[test]
+fn absolutize_lv4_1() {
+    let p = Path::new("/");
+
+    assert_eq!("/", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv4_2() {
+    let p = Path::new("");
+
+    assert_eq!("/foo/bar/baz", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("foo/bar/baz", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv4_3() {
+    let p = Path::new("abc");
+
+    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv5_1() {
+    let p = Path::new("./abc");
+
+    assert_eq!("/abc", p.absolutize_from("/").unwrap().to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv5_2() {
+    let p = Path::new("../abc");
+
+    assert_eq!("/abc", p.absolutize_from("/").unwrap().to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv5_3() {
+    let p = Path::new("./abc");
+
+    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv5_4() {
+    let p = Path::new("../abc");
+
+    assert_eq!("/foo/bar/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("foo/bar/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+}
+
+#[test]
 fn virtually_absolutize_lv0_1() {
     let p = Path::new("/path/to/123/456");
 

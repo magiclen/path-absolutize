@@ -6,8 +6,8 @@ pub trait Absolutize {
     fn absolutize(&self) -> io::Result<Cow<Path>>;
 
     /// Get an absolute path. This works even if the path does not exist. It gets the current working directory as the second argument.
-    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>>;
+    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> io::Result<Cow<Path>>;
 
     /// Get an absolute path. This works even if the path does not exist.
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>>;
+    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<Path>>;
 }

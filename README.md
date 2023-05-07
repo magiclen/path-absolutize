@@ -124,7 +124,7 @@ use path_absolutize::*;
 let p = Path::new("../path/to/123/456");
 let cwd = env::current_dir().unwrap();
 
-println!("{}", p.absolutize_from(&cwd).unwrap().to_str().unwrap());
+println!("{}", p.absolutize_from(cwd).unwrap().to_str().unwrap());
 ```
 
 

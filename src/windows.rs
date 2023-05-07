@@ -18,7 +18,7 @@ impl Absolutize for Path {
         self.absolutize_from(&cwd)
     }
 
-    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
+    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> io::Result<Cow<Path>> {
         let mut iter = self.components();
 
         let mut has_change = false;
@@ -26,7 +26,7 @@ impl Absolutize for Path {
         if let Some(first_component) = iter.next() {
             let mut tokens = Vec::new();
 
-            match first_component {
+            let (has_prefix, first_is_root) = match first_component {
                 Component::Prefix(prefix) => {
                     tokens.push(prefix.as_os_str());
 
@@ -34,88 +34,198 @@ impl Absolutize for Path {
                         match second_component {
                             Component::RootDir => {
                                 tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                (true, true)
                             },
                             Component::CurDir => {
                                 // may be unreachable
 
-                                for token in cwd.iter().skip(1) {
+                                has_change = true;
+
+                                let cwd = cwd.as_ref();
+
+                                for token in cwd.iter().skip(if cwd.get_path_prefix().is_some() {
+                                    1
+                                } else {
+                                    0
+                                }) {
                                     tokens.push(token);
                                 }
 
-                                has_change = true;
+                                (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
                             },
                             Component::ParentDir => {
+                                has_change = true;
+
+                                let cwd = cwd.as_ref();
+
                                 match cwd.parent() {
                                     Some(cwd_parent) => {
-                                        for token in cwd_parent.iter().skip(1) {
+                                        for token in cwd_parent.iter().skip(
+                                            if cwd.get_path_prefix().is_some() { 1 } else { 0 },
+                                        ) {
                                             tokens.push(token);
                                         }
+
+                                        (
+                                            true,
+                                            tokens.len() > 1
+                                                && tokens[1] == MAIN_SEPARATOR.as_os_str(),
+                                        )
                                     },
                                     None => {
-                                        tokens.push(MAIN_SEPARATOR.as_os_str());
+                                        if cwd.get_path_prefix().is_some() {
+                                            if cwd.is_absolute() {
+                                                tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                                (true, true)
+                                            } else {
+                                                (true, false)
+                                            }
+                                        } else {
+                                            // don't care about `cwd` is "\\" or "\\\"
+                                            if cwd == MAIN_SEPARATOR.as_os_str() {
+                                                tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                                (true, true)
+                                            } else {
+                                                (true, false)
+                                            }
+                                        }
                                     },
                                 }
-
-                                has_change = true;
                             },
                             _ => {
-                                for token in cwd.iter().skip(1) {
-                                    tokens.push(token);
-                                }
+                                has_change = true;
+
+                                let out = {
+                                    let cwd = cwd.as_ref();
+
+                                    for token in cwd
+                                        .iter()
+                                        .skip(if cwd.get_path_prefix().is_some() { 1 } else { 0 })
+                                    {
+                                        tokens.push(token);
+                                    }
+
+                                    (
+                                        true,
+                                        tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str(),
+                                    )
+                                };
 
                                 tokens.push(second_component.as_os_str());
 
-                                has_change = true;
+                                out
                             },
                         }
                     } else {
                         tokens.push(MAIN_SEPARATOR.as_os_str());
 
                         has_change = true;
+
+                        (true, true)
                     }
                 },
                 Component::RootDir => {
-                    let prefix = cwd.get_path_prefix().unwrap().as_os_str();
-                    tokens.push(prefix);
-
-                    tokens.push(MAIN_SEPARATOR.as_os_str());
-
                     has_change = true;
+
+                    let cwd = cwd.as_ref();
+
+                    match cwd.get_path_prefix() {
+                        Some(prefix) => {
+                            tokens.push(prefix.as_os_str());
+                            tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                            (true, true)
+                        },
+                        None => {
+                            tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                            (false, true)
+                        },
+                    }
                 },
                 Component::CurDir => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
 
-                    has_change = true;
+                    if cwd.get_path_prefix().is_some() {
+                        (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                    } else {
+                        (false, !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str())
+                    }
                 },
                 Component::ParentDir => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     match cwd.parent() {
                         Some(cwd_parent) => {
                             for token in cwd_parent.iter() {
                                 tokens.push(token);
                             }
-                        },
-                        None => {
-                            let prefix = cwd.get_path_prefix().unwrap().as_os_str();
-                            tokens.push(prefix);
 
-                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                            if cwd.get_path_prefix().is_some() {
+                                (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                            } else {
+                                (
+                                    false,
+                                    !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str(),
+                                )
+                            }
+                        },
+                        None => match cwd.get_path_prefix() {
+                            Some(prefix) => {
+                                tokens.push(prefix.as_os_str());
+
+                                if cwd.is_absolute() {
+                                    tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                    (true, true)
+                                } else {
+                                    (true, false)
+                                }
+                            },
+                            None => {
+                                // don't care about `cwd` is "\\" or "\\\"
+                                if cwd == MAIN_SEPARATOR.as_os_str() {
+                                    tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                    (false, true)
+                                } else {
+                                    (false, false)
+                                }
+                            },
                         },
                     }
-
-                    has_change = true;
                 },
                 Component::Normal(token) => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
 
+                    let out = if cwd.get_path_prefix().is_some() {
+                        (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                    } else {
+                        (false, !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str())
+                    };
+
                     tokens.push(token);
 
-                    has_change = true;
+                    out
                 },
-            }
+            };
 
             for component in iter {
                 match component {
@@ -126,7 +236,10 @@ impl Absolutize for Path {
                     Component::ParentDir => {
                         let tokens_length = tokens.len();
 
-                        if tokens_length > 2 {
+                        if tokens_length > 0
+                            && ((tokens_length != 1 || (!first_is_root && !has_prefix))
+                                && (tokens_length != 2 || !(first_is_root && has_prefix)))
+                        {
                             tokens.remove(tokens_length - 1);
                         }
 
@@ -142,9 +255,19 @@ impl Absolutize for Path {
 
             debug_assert!(tokens_length > 0);
 
-            let mut size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len()) - 1;
+            let mut size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len());
 
-            if tokens_length > 2 {
+            if has_prefix {
+                if tokens_length > 1 {
+                    size -= 1;
+
+                    if first_is_root {
+                        if tokens_length > 2 {
+                            size -= 1;
+                        }
+                    }
+                }
+            } else if first_is_root && tokens_length > 1 {
                 size -= 1;
             }
 
@@ -154,16 +277,39 @@ impl Absolutize for Path {
                 let mut iter = tokens.iter();
 
                 path_string.push(iter.next().unwrap());
-                path_string.push(iter.next().unwrap());
 
-                if tokens_length > 2 {
-                    for token in iter.take(tokens_length - 3) {
-                        path_string.push(token);
+                if tokens_length > 1 {
+                    if has_prefix {
+                        if let Some(token) = iter.next() {
+                            path_string.push(token);
 
-                        path_string.push(MAIN_SEPARATOR.as_os_str());
+                            if tokens_length > 2 {
+                                if !first_is_root {
+                                    path_string.push(MAIN_SEPARATOR.as_os_str());
+                                }
+
+                                for token in iter.take(tokens_length - 3) {
+                                    path_string.push(token);
+
+                                    path_string.push(MAIN_SEPARATOR.as_os_str());
+                                }
+
+                                path_string.push(tokens[tokens_length - 1]);
+                            }
+                        }
+                    } else {
+                        if !first_is_root {
+                            path_string.push(MAIN_SEPARATOR.as_os_str());
+                        }
+
+                        for token in iter.take(tokens_length - 2) {
+                            path_string.push(token);
+
+                            path_string.push(MAIN_SEPARATOR.as_os_str());
+                        }
+
+                        path_string.push(tokens[tokens_length - 1]);
                     }
-
-                    path_string.push(tokens[tokens_length - 1]);
                 }
 
                 let path_buf = PathBuf::from(path_string);
@@ -173,11 +319,11 @@ impl Absolutize for Path {
                 Ok(Cow::from(self))
             }
         } else {
-            Ok(Cow::from(cwd.to_owned()))
+            Ok(Cow::from(cwd.as_ref().to_owned()))
         }
     }
 
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
+    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<Path>> {
         let virtual_root = virtual_root.as_ref().absolutize()?;
 
         let path = self.parse_dot()?;

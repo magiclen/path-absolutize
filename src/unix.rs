@@ -15,10 +15,10 @@ impl Absolutize for Path {
     fn absolutize(&self) -> io::Result<Cow<Path>> {
         let cwd = get_cwd!();
 
-        self.absolutize_from(cwd.as_ref())
+        self.absolutize_from(cwd)
     }
 
-    fn absolutize_from(&self, cwd: &Path) -> io::Result<Cow<'_, Path>> {
+    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> io::Result<Cow<Path>> {
         let mut iter = self.components();
 
         let mut has_change = false;
@@ -26,41 +26,65 @@ impl Absolutize for Path {
         if let Some(first_component) = iter.next() {
             let mut tokens = Vec::new();
 
-            match first_component {
+            let first_is_root = match first_component {
                 Component::RootDir => {
                     tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                    true
                 },
                 Component::CurDir => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
 
-                    has_change = true;
+                    !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str()
                 },
                 Component::ParentDir => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     match cwd.parent() {
                         Some(cwd_parent) => {
                             for token in cwd_parent.iter() {
                                 tokens.push(token);
                             }
+
+                            !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str()
                         },
                         None => {
-                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                            // don't care about `cwd` is "//" or "///"
+                            if cwd == MAIN_SEPARATOR.as_os_str() {
+                                tokens.push(MAIN_SEPARATOR.as_os_str());
+
+                                true
+                            } else {
+                                false
+                            }
                         },
                     }
-
-                    has_change = true;
                 },
                 _ => {
+                    has_change = true;
+
+                    let cwd = cwd.as_ref();
+
                     for token in cwd.iter() {
                         tokens.push(token);
                     }
 
+                    let first_is_root =
+                        !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str();
+
                     tokens.push(first_component.as_os_str());
 
-                    has_change = true;
+                    first_is_root
                 },
-            }
+            };
 
             for component in iter {
                 match component {
@@ -71,7 +95,7 @@ impl Absolutize for Path {
                     Component::ParentDir => {
                         let tokens_length = tokens.len();
 
-                        if tokens_length > 1 {
+                        if tokens_length > 0 && (tokens_length != 1 || !first_is_root) {
                             tokens.remove(tokens_length - 1);
                         }
 
@@ -87,7 +111,11 @@ impl Absolutize for Path {
 
             debug_assert!(tokens_length > 0);
 
-            let size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len()) - 1;
+            let mut size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len());
+
+            if first_is_root && tokens_length > 1 {
+                size -= 1;
+            }
 
             if has_change || size != self.as_os_str().len() {
                 let mut path_string = OsString::with_capacity(size);
@@ -97,6 +125,10 @@ impl Absolutize for Path {
                 path_string.push(iter.next().unwrap());
 
                 if tokens_length > 1 {
+                    if !first_is_root {
+                        path_string.push(MAIN_SEPARATOR.as_os_str());
+                    }
+
                     for token in iter.take(tokens_length - 2) {
                         path_string.push(token);
 
@@ -113,11 +145,11 @@ impl Absolutize for Path {
                 Ok(Cow::from(self))
             }
         } else {
-            Ok(Cow::from(cwd.to_owned()))
+            Ok(Cow::from(cwd.as_ref().to_owned()))
         }
     }
 
-    fn absolutize_virtually<P: AsRef<Path>>(&self, virtual_root: P) -> io::Result<Cow<Path>> {
+    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<Path>> {
         let virtual_root = virtual_root.as_ref().absolutize()?;
 
         let path = self.parse_dot()?;
