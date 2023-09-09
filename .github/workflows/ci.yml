@@ -37,7 +37,6 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
-          - 1.56
           - stable
           - nightly
         features:
@@ -54,3 +53,27 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - run: cargo test ${{ matrix.features }}
       - run: cargo doc ${{ matrix.features }}
+
+  MSRV:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        toolchain:
+          - "1.60"
+        features:
+          -
+          - --features lazy_static_cache
+          - --features once_cell_cache
+          - --features unsafe_cache
+    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo test --lib --bins ${{ matrix.features }}
