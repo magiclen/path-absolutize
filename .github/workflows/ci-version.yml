@@ -22,9 +22,7 @@ jobs:
           - nightly
         features:
           -
-          - --features lazy_static_cache
-          - --features once_cell_cache
-          - --features unsafe_cache
+          - --features fixed_workdir
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -44,12 +42,10 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
-          - "1.60"
+          - "1.80"
         features:
           -
-          - --features lazy_static_cache
-          - --features once_cell_cache
-          - --features unsafe_cache
+          - --features fixed_workdir
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:

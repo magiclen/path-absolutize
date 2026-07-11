@@ -1,4 +1,4 @@
-#![cfg(all(unix, not(feature = "unsafe_cache")))]
+#![cfg(unix)]
 
 use std::{env, io::ErrorKind, path::Path};
 
@@ -143,56 +143,65 @@ fn absolutize_lv3() {
 fn absolutize_lv4_1() {
     let p = Path::new("/");
 
-    assert_eq!("/", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
-    assert_eq!("/", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/", p.absolutize_from("/foo/bar/baz").to_str().unwrap());
+    assert_eq!("/", p.absolutize_from("foo/bar/baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv4_2() {
     let p = Path::new("");
 
-    assert_eq!("/foo/bar/baz", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
-    assert_eq!("foo/bar/baz", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/foo/bar/baz", p.absolutize_from("/foo/bar/baz").to_str().unwrap());
+    assert_eq!("foo/bar/baz", p.absolutize_from("foo/bar/baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv4_3() {
     let p = Path::new("abc");
 
-    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
-    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").to_str().unwrap());
+    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv5_1() {
     let p = Path::new("./abc");
 
-    assert_eq!("/abc", p.absolutize_from("/").unwrap().to_str().unwrap());
-    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!("/abc", p.absolutize_from("/").to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv5_2() {
     let p = Path::new("../abc");
 
-    assert_eq!("/abc", p.absolutize_from("/").unwrap().to_str().unwrap());
-    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!("/abc", p.absolutize_from("/").to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv5_3() {
     let p = Path::new("./abc");
 
-    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
-    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/foo/bar/baz/abc", p.absolutize_from("/foo/bar/baz").to_str().unwrap());
+    assert_eq!("foo/bar/baz/abc", p.absolutize_from("foo/bar/baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv5_4() {
     let p = Path::new("../abc");
 
-    assert_eq!("/foo/bar/abc", p.absolutize_from("/foo/bar/baz").unwrap().to_str().unwrap());
-    assert_eq!("foo/bar/abc", p.absolutize_from("foo/bar/baz").unwrap().to_str().unwrap());
+    assert_eq!("/foo/bar/abc", p.absolutize_from("/foo/bar/baz").to_str().unwrap());
+    assert_eq!("foo/bar/abc", p.absolutize_from("foo/bar/baz").to_str().unwrap());
+}
+
+#[test]
+fn absolutize_lv5_5() {
+    let p = Path::new("../..");
+
+    // a relative cwd that is entirely consumed by the double dots yields an empty path
+    assert_eq!("", p.absolutize_from("foo").to_str().unwrap());
+    assert_eq!("", p.absolutize_from("foo/bar").to_str().unwrap());
 }
 
 #[test]

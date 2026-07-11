@@ -24,9 +24,7 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy --all-targets -- -D warnings
-      - run: cargo clippy --all-targets --features once_cell_cache -- -D warnings
-      - run: cargo clippy --all-targets --features lazy_static_cache -- -D warnings
-      - run: cargo clippy --all-targets --features unsafe_cache -- -D warnings
+      - run: cargo clippy --all-targets --features fixed_workdir -- -D warnings
 
   tests:
     strategy:
@@ -41,9 +39,7 @@ jobs:
           - nightly
         features:
           -
-          - --features lazy_static_cache
-          - --features once_cell_cache
-          - --features unsafe_cache
+          - --features fixed_workdir
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -63,12 +59,10 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
-          - "1.60"
+          - "1.80"
         features:
           -
-          - --features lazy_static_cache
-          - --features once_cell_cache
-          - --features unsafe_cache
+          - --features fixed_workdir
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:

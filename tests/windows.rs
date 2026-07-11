@@ -1,4 +1,4 @@
-#![cfg(all(windows, not(feature = "unsafe_cache")))]
+#![cfg(windows)]
 
 #[macro_use]
 extern crate slash_formatter;
@@ -139,7 +139,7 @@ fn absolutize_lv1_4() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(
-                Path::join(&cwd_parent, Path::new(r"path\to\123\456")).to_str().unwrap(),
+                Path::join(cwd_parent, Path::new(r"path\to\123\456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
         },
@@ -180,7 +180,7 @@ fn absolutize_lv3() {
     match cwd_parent {
         Some(cwd_parent) => {
             assert_eq!(
-                Path::join(&cwd_parent, Path::new(r"to\123\456")).to_str().unwrap(),
+                Path::join(cwd_parent, Path::new(r"to\123\456")).to_str().unwrap(),
                 p.absolutize().unwrap().to_str().unwrap()
             );
         },
@@ -269,138 +269,132 @@ fn absolutize_lv5_2() {
 }
 
 #[test]
+fn absolutize_lv5_3() {
+    let p = Path::new(r"..\..");
+
+    // a relative cwd that is entirely consumed by the double dots yields an empty path
+    assert_eq!("", p.absolutize_from("foo").to_str().unwrap());
+    assert_eq!("", p.absolutize_from(r"foo\bar").to_str().unwrap());
+}
+
+#[test]
 fn absolutize_lv6_1() {
     let p = Path::new(r"C:\");
 
-    assert_eq!(r"C:\", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"C:\", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:\", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv6_2() {
     let p = Path::new(r"C:");
 
-    assert_eq!(r"C:\", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"C:\", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:\", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv6_3() {
     let p = Path::new(r"");
 
-    assert_eq!(r"\foo\bar\baz", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"foo\bar\baz", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"\foo\bar\baz", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"foo\bar\baz", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv6_4() {
     let p = Path::new(r"abc");
 
-    assert_eq!(r"\foo\bar\baz\abc", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"\foo\bar\baz\abc", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_1() {
     let p = Path::new(r".\abc");
 
-    assert_eq!(r"\abc", p.absolutize_from(r"\").unwrap().to_str().unwrap());
-    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!(r"\abc", p.absolutize_from(r"\").to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").to_str().unwrap());
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("C:").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("C:").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_2() {
     let p = Path::new(r"..\abc");
 
-    assert_eq!(r"\abc", p.absolutize_from(r"\").unwrap().to_str().unwrap());
-    assert_eq!("abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!(r"\abc", p.absolutize_from(r"\").to_str().unwrap());
+    assert_eq!("abc", p.absolutize_from("").to_str().unwrap());
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("C:").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("C:").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_3() {
     let p = Path::new(r".\abc");
 
-    assert_eq!(r"\foo\bar\baz\abc", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"\foo\bar\baz\abc", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 
-    assert_eq!(
-        r"C:\foo\bar\baz\abc",
-        p.absolutize_from(r"C:\foo\bar\baz").unwrap().to_str().unwrap()
-    );
-    assert_eq!(
-        r"C:foo\bar\baz\abc",
-        p.absolutize_from(r"C:foo\bar\baz").unwrap().to_str().unwrap()
-    );
+    assert_eq!(r"C:\foo\bar\baz\abc", p.absolutize_from(r"C:\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\baz\abc", p.absolutize_from(r"C:foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_4() {
     let p = Path::new(r"..\abc");
 
-    assert_eq!(r"\foo\bar\abc", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"foo\bar\abc", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"\foo\bar\abc", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"foo\bar\abc", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 
-    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"C:\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"C:foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"C:\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"C:foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_5() {
     let p = Path::new(r"C:.\abc");
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("").to_str().unwrap());
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("C:").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("C:").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_6() {
     let p = Path::new(r"C:..\abc");
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("").to_str().unwrap());
 
-    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").unwrap().to_str().unwrap());
-    assert_eq!("C:abc", p.absolutize_from("C:").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\abc", p.absolutize_from(r"C:\").to_str().unwrap());
+    assert_eq!("C:abc", p.absolutize_from("C:").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_7() {
     let p = Path::new(r"C:.\abc");
 
-    assert_eq!(
-        r"C:\foo\bar\baz\abc",
-        p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap()
-    );
-    assert_eq!(r"C:foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\foo\bar\baz\abc", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\baz\abc", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 
-    assert_eq!(
-        r"C:\foo\bar\baz\abc",
-        p.absolutize_from(r"C:\foo\bar\baz").unwrap().to_str().unwrap()
-    );
-    assert_eq!(
-        r"C:foo\bar\baz\abc",
-        p.absolutize_from(r"C:foo\bar\baz").unwrap().to_str().unwrap()
-    );
+    assert_eq!(r"C:\foo\bar\baz\abc", p.absolutize_from(r"C:\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\baz\abc", p.absolutize_from(r"C:foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
 fn absolutize_lv7_8() {
     let p = Path::new(r"C:..\abc");
 
-    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"foo\bar\baz").to_str().unwrap());
 
-    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"C:\foo\bar\baz").unwrap().to_str().unwrap());
-    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"C:foo\bar\baz").unwrap().to_str().unwrap());
+    assert_eq!(r"C:\foo\bar\abc", p.absolutize_from(r"C:\foo\bar\baz").to_str().unwrap());
+    assert_eq!(r"C:foo\bar\abc", p.absolutize_from(r"C:foo\bar\baz").to_str().unwrap());
 }
 
 #[test]
@@ -449,5 +443,5 @@ fn absolutize_virtually_2() {
 fn absolutize_virtually_3() {
     let p = Path::new(r"C:123\456\");
 
-    assert!(matches!(p.absolutize_virtually(r"D:\"), Err(_)));
+    assert!(p.absolutize_virtually(r"D:\").is_err());
 }

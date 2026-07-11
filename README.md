@@ -124,7 +124,7 @@ use path_absolutize::*;
 let p = Path::new("../path/to/123/456");
 let cwd = env::current_dir().unwrap();
 
-println!("{}", p.absolutize_from(cwd).unwrap().to_str().unwrap());
+println!("{}", p.absolutize_from(cwd).to_str().unwrap());
 ```
 
 
@@ -218,62 +218,14 @@ assert_eq!("/virtual/root/123/456", p.absolutize_virtually("/virtual/root").unwr
 
 ## Caching
 
-By default, the `absolutize` method and the `absolutize_virtually` method create a new `PathBuf` instance of the CWD every time in their operation. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
+By default, the `absolutize` method and the `absolutize_virtually` method create a new `PathBuf` instance of the CWD every time they need it in their operation. The overhead is obvious. Although it allows us to safely change the CWD at runtime by the program itself (e.g. using the `std::env::set_current_dir` function) or outside controls (e.g. using gdb to call `chdir`), we don't need that in most cases.
 
-In order to parse paths with better performance, this crate provides three ways to cache the CWD.
-
-### once_cell_cache
-
-Enabling the `once_cell_cache` feature can let this crate use `once_cell` to cache the CWD. It's thread-safe and does not need to modify any code, but once the CWD is cached, it cannot be changed anymore at runtime.
+In order to parse paths with better performance, the `fixed_workdir` feature can be enabled.
 
 ```toml
 [dependencies.path-absolutize]
 version = "*"
-features = ["once_cell_cache"]
-```
-
-### lazy_static_cache
-
-Enabling the `lazy_static_cache` feature can let this crate use `lazy_static` to cache the CWD. It's thread-safe and does not need to modify any code, but once the CWD is cached, it cannot be changed anymore at runtime.
-
-```toml
-[dependencies.path-absolutize]
-version = "*"
-features = ["lazy_static_cache"]
-```
-
-### unsafe_cache
-
-Enabling the `unsafe_cache` feature can let this crate use a mutable static variable to cache the CWD. It allows the program to change the CWD at runtime by the program itself, but it's not thread-safe.
-
-You need to use the `update_cwd` function to initialize the CWD first. The function should also be used to update the CWD after the CWD is changed.
-
-```toml
-[dependencies.path-absolutize]
-version = "*"
-features = ["unsafe_cache"]
-```
-
-```rust
-use std::path::Path;
-
-use path_absolutize::*;
-
-unsafe {
-    update_cwd();
-}
-
-let p = Path::new("./path/to/123/456");
-
-println!("{}", p.absolutize().unwrap().to_str().unwrap());
-
-std::env::set_current_dir("/").unwrap();
-
-unsafe {
-    update_cwd();
-}
-
-println!("{}", p.absolutize().unwrap().to_str().unwrap());
+features = ["fixed_workdir"]
 ```
 
 ## Benchmark
@@ -284,22 +236,10 @@ println!("{}", p.absolutize().unwrap().to_str().unwrap());
 cargo bench
 ```
 
-#### once_cell_cache
+#### fixed_workdir
 
 ```bash
-cargo bench --features once_cell_cache
-```
-
-#### lazy_static_cache
-
-```bash
-cargo bench --features lazy_static_cache
-```
-
-#### unsafe_cache
-
-```bash
-cargo bench --features unsafe_cache
+cargo bench --features fixed_workdir
 ```
 
 ## Crates.io

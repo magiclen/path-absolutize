@@ -1,24 +1,31 @@
 use std::{
     borrow::Cow,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     io::{self, ErrorKind},
-    path::{Component, Path, PathBuf},
+    path::{Component, Path, PathBuf, MAIN_SEPARATOR_STR},
 };
 
 use crate::{
-    path_dedot::{ParseDot, ParsePrefix, MAIN_SEPARATOR},
+    path_dedot::{ParseDot, ParsePrefix},
     Absolutize,
 };
 
 impl Absolutize for Path {
     #[inline]
-    fn absolutize(&self) -> io::Result<Cow<Path>> {
-        let cwd = get_cwd!();
+    fn absolutize(&self) -> io::Result<Cow<'_, Path>> {
+        if self.is_absolute() {
+            // an absolute path never reads the cwd, so an empty one is enough here
+            Ok(self.absolutize_from(Path::new("")))
+        } else {
+            let cwd = get_cwd!();
 
-        self.absolutize_from(&cwd)
+            Ok(self.absolutize_from(cwd))
+        }
     }
 
-    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> io::Result<Cow<Path>> {
+    fn absolutize_from(&self, cwd: impl AsRef<Path>) -> Cow<'_, Path> {
+        let main_separator = OsStr::new(MAIN_SEPARATOR_STR);
+
         let mut iter = self.components();
 
         let mut has_change = false;
@@ -33,7 +40,7 @@ impl Absolutize for Path {
                     if let Some(second_component) = iter.next() {
                         match second_component {
                             Component::RootDir => {
-                                tokens.push(MAIN_SEPARATOR.as_os_str());
+                                tokens.push(main_separator);
 
                                 (true, true)
                             },
@@ -52,7 +59,7 @@ impl Absolutize for Path {
                                     tokens.push(token);
                                 }
 
-                                (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                                (true, tokens.len() > 1 && tokens[1] == main_separator)
                             },
                             Component::ParentDir => {
                                 has_change = true;
@@ -67,16 +74,12 @@ impl Absolutize for Path {
                                             tokens.push(token);
                                         }
 
-                                        (
-                                            true,
-                                            tokens.len() > 1
-                                                && tokens[1] == MAIN_SEPARATOR.as_os_str(),
-                                        )
+                                        (true, tokens.len() > 1 && tokens[1] == main_separator)
                                     },
                                     None => {
                                         if cwd.get_path_prefix().is_some() {
                                             if cwd.is_absolute() {
-                                                tokens.push(MAIN_SEPARATOR.as_os_str());
+                                                tokens.push(main_separator);
 
                                                 (true, true)
                                             } else {
@@ -84,8 +87,8 @@ impl Absolutize for Path {
                                             }
                                         } else {
                                             // don't care about `cwd` is "\\" or "\\\"
-                                            if cwd == MAIN_SEPARATOR.as_os_str() {
-                                                tokens.push(MAIN_SEPARATOR.as_os_str());
+                                            if cwd == main_separator {
+                                                tokens.push(main_separator);
 
                                                 (true, true)
                                             } else {
@@ -108,10 +111,7 @@ impl Absolutize for Path {
                                         tokens.push(token);
                                     }
 
-                                    (
-                                        true,
-                                        tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str(),
-                                    )
+                                    (true, tokens.len() > 1 && tokens[1] == main_separator)
                                 };
 
                                 tokens.push(second_component.as_os_str());
@@ -120,7 +120,7 @@ impl Absolutize for Path {
                             },
                         }
                     } else {
-                        tokens.push(MAIN_SEPARATOR.as_os_str());
+                        tokens.push(main_separator);
 
                         has_change = true;
 
@@ -135,12 +135,12 @@ impl Absolutize for Path {
                     match cwd.get_path_prefix() {
                         Some(prefix) => {
                             tokens.push(prefix.as_os_str());
-                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                            tokens.push(main_separator);
 
                             (true, true)
                         },
                         None => {
-                            tokens.push(MAIN_SEPARATOR.as_os_str());
+                            tokens.push(main_separator);
 
                             (false, true)
                         },
@@ -156,9 +156,9 @@ impl Absolutize for Path {
                     }
 
                     if cwd.get_path_prefix().is_some() {
-                        (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                        (true, tokens.len() > 1 && tokens[1] == main_separator)
                     } else {
-                        (false, !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str())
+                        (false, !tokens.is_empty() && tokens[0] == main_separator)
                     }
                 },
                 Component::ParentDir => {
@@ -173,12 +173,9 @@ impl Absolutize for Path {
                             }
 
                             if cwd.get_path_prefix().is_some() {
-                                (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                                (true, tokens.len() > 1 && tokens[1] == main_separator)
                             } else {
-                                (
-                                    false,
-                                    !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str(),
-                                )
+                                (false, !tokens.is_empty() && tokens[0] == main_separator)
                             }
                         },
                         None => match cwd.get_path_prefix() {
@@ -186,7 +183,7 @@ impl Absolutize for Path {
                                 tokens.push(prefix.as_os_str());
 
                                 if cwd.is_absolute() {
-                                    tokens.push(MAIN_SEPARATOR.as_os_str());
+                                    tokens.push(main_separator);
 
                                     (true, true)
                                 } else {
@@ -195,8 +192,8 @@ impl Absolutize for Path {
                             },
                             None => {
                                 // don't care about `cwd` is "\\" or "\\\"
-                                if cwd == MAIN_SEPARATOR.as_os_str() {
-                                    tokens.push(MAIN_SEPARATOR.as_os_str());
+                                if cwd == main_separator {
+                                    tokens.push(main_separator);
 
                                     (false, true)
                                 } else {
@@ -216,9 +213,9 @@ impl Absolutize for Path {
                     }
 
                     let out = if cwd.get_path_prefix().is_some() {
-                        (true, tokens.len() > 1 && tokens[1] == MAIN_SEPARATOR.as_os_str())
+                        (true, tokens.len() > 1 && tokens[1] == main_separator)
                     } else {
-                        (false, !tokens.is_empty() && tokens[0] == MAIN_SEPARATOR.as_os_str())
+                        (false, !tokens.is_empty() && tokens[0] == main_separator)
                     };
 
                     tokens.push(token);
@@ -240,7 +237,7 @@ impl Absolutize for Path {
                             && ((tokens_length != 1 || (!first_is_root && !has_prefix))
                                 && (tokens_length != 2 || !(first_is_root && has_prefix)))
                         {
-                            tokens.remove(tokens_length - 1);
+                            tokens.pop();
                         }
 
                         has_change = true;
@@ -251,9 +248,12 @@ impl Absolutize for Path {
                 }
             }
 
-            let tokens_length = tokens.len();
+            // all tokens can be removed by double dots when the given cwd is relative, yielding an empty path
+            if tokens.is_empty() {
+                return Cow::from(PathBuf::new());
+            }
 
-            debug_assert!(tokens_length > 0);
+            let tokens_length = tokens.len();
 
             let mut size = tokens.iter().fold(tokens_length - 1, |acc, &x| acc + x.len());
 
@@ -261,10 +261,8 @@ impl Absolutize for Path {
                 if tokens_length > 1 {
                     size -= 1;
 
-                    if first_is_root {
-                        if tokens_length > 2 {
-                            size -= 1;
-                        }
+                    if first_is_root && tokens_length > 2 {
+                        size -= 1;
                     }
                 }
             } else if first_is_root && tokens_length > 1 {
@@ -285,13 +283,13 @@ impl Absolutize for Path {
 
                             if tokens_length > 2 {
                                 if !first_is_root {
-                                    path_string.push(MAIN_SEPARATOR.as_os_str());
+                                    path_string.push(main_separator);
                                 }
 
                                 for token in iter.take(tokens_length - 3) {
                                     path_string.push(token);
 
-                                    path_string.push(MAIN_SEPARATOR.as_os_str());
+                                    path_string.push(main_separator);
                                 }
 
                                 path_string.push(tokens[tokens_length - 1]);
@@ -299,13 +297,13 @@ impl Absolutize for Path {
                         }
                     } else {
                         if !first_is_root {
-                            path_string.push(MAIN_SEPARATOR.as_os_str());
+                            path_string.push(main_separator);
                         }
 
                         for token in iter.take(tokens_length - 2) {
                             path_string.push(token);
 
-                            path_string.push(MAIN_SEPARATOR.as_os_str());
+                            path_string.push(main_separator);
                         }
 
                         path_string.push(tokens[tokens_length - 1]);
@@ -314,16 +312,16 @@ impl Absolutize for Path {
 
                 let path_buf = PathBuf::from(path_string);
 
-                Ok(Cow::from(path_buf))
+                Cow::from(path_buf)
             } else {
-                Ok(Cow::from(self))
+                Cow::from(self)
             }
         } else {
-            Ok(Cow::from(cwd.as_ref().to_owned()))
+            Cow::from(cwd.as_ref().to_owned())
         }
     }
 
-    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<Path>> {
+    fn absolutize_virtually(&self, virtual_root: impl AsRef<Path>) -> io::Result<Cow<'_, Path>> {
         let virtual_root = virtual_root.as_ref().absolutize()?;
 
         let path = self.parse_dot()?;
@@ -331,14 +329,12 @@ impl Absolutize for Path {
         if path.is_absolute() {
             let path_lowercase = path
                 .to_str()
-                .ok_or_else(|| io::Error::new(ErrorKind::Other, "The path is not valid UTF-8."))?
+                .ok_or_else(|| io::Error::other("The path is not valid UTF-8."))?
                 .to_lowercase();
 
             let virtual_root_lowercase = virtual_root
                 .to_str()
-                .ok_or_else(|| {
-                    io::Error::new(ErrorKind::Other, "The virtual root is not valid UTF-8.")
-                })?
+                .ok_or_else(|| io::Error::other("The virtual root is not valid UTF-8."))?
                 .to_lowercase();
 
             if !&path_lowercase.starts_with(&virtual_root_lowercase) {
@@ -347,9 +343,10 @@ impl Absolutize for Path {
 
             Ok(path)
         } else if let Some(prefix) = path.get_path_prefix() {
-            let prefix = prefix.as_os_str().to_str().ok_or_else(|| {
-                io::Error::new(ErrorKind::Other, "The prefix of the path is not valid UTF-8.")
-            })?;
+            let prefix = prefix
+                .as_os_str()
+                .to_str()
+                .ok_or_else(|| io::Error::other("The prefix of the path is not valid UTF-8."))?;
 
             let prefix_lowercase = prefix.to_lowercase();
 
@@ -359,17 +356,14 @@ impl Absolutize for Path {
                 .as_os_str()
                 .to_str()
                 .ok_or_else(|| {
-                    io::Error::new(
-                        ErrorKind::Other,
-                        "The prefix of the virtual root is not valid UTF-8.",
-                    )
+                    io::Error::other("The prefix of the virtual root is not valid UTF-8.")
                 })?
                 .to_lowercase();
 
             if prefix_lowercase == virtual_root_prefix_lowercase {
-                let path = path.to_str().ok_or_else(|| {
-                    io::Error::new(ErrorKind::Other, "The path is not valid UTF-8.")
-                })?;
+                let path = path
+                    .to_str()
+                    .ok_or_else(|| io::Error::other("The path is not valid UTF-8."))?;
 
                 let path_without_prefix = Path::new(&path[prefix.len()..]);
 
